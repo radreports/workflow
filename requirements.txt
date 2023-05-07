@@ -1,0 +1,17 @@
+
+redis==3.5.3
+httpx==0.15.5
+requests==2.24.0
+pydicom
+numpy 
+opencv-python
+dataclasses
+nibabel
+SimpleITK
+dicom2nifti
+python-multipart
+python-jose[cryptography]
+fhirclient
+beren
+highdicom
+
