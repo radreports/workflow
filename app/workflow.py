@@ -213,7 +213,7 @@ def process(data):
             downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
         print("processing ICG ...")
         Modality = "Non contract CT-Head"
-        bodypartExamined = "Intracranial Haemmorage"
+        bodypartExamined = "Head"
         inferICH(niftiIN,niftiout)
         inference_findings = ich.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         
@@ -224,6 +224,8 @@ def process(data):
         except Exception as e: 
             downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
         inferThor(niftiIN,niftiout)
+        Modality = " CT-Abdoman"
+        bodypartExamined = "OAR Thoractic"
         thor.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         
 
@@ -233,7 +235,9 @@ def process(data):
         except Exception as e: 
             downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
         inferLits(niftiIN,niftiout)
-        liver_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        Modality = " CT-Abdoman"
+        bodypartExamined = "Liver "
+        inference_findings = liver.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         
     if bodyPart.lower() == "lung".lower():
         # try:
@@ -243,6 +247,8 @@ def process(data):
         downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
         inferLungs(niftiIN,niftiout)
         # inferAbdoman(niftiIN,niftiout)
+        Modality = " CT-Abdoman"
+        bodypartExamined = "Lung Nodules"
         inference_findings = lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         # abdoman.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
 
@@ -253,6 +259,9 @@ def process(data):
             downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
         # inferLungs(niftiIN,niftiout)
         inferAbdoman(niftiIN,niftiout)
+        Modality = " CT-Abdoman"
+        bodypartExamined = "Abdoman OAR"
+        inference_findings =  "Abdoman OAR"
         # lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         abdoman.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
             
@@ -271,7 +280,7 @@ def process(data):
     headers = {"Content-Type":"application/json"}
     url = api_url + "/Observation"
     
-    data = helper.createObservation(patient_id,study_id,service_id,Modality,inference_findings,bodyPart)
+    data = helper.createObservation(patient_id,study_id,service_id,Modality,inference_findings,bodypartExamined)
     resp = requests.post(url, data = json.dumps(data),headers = headers)
     print("completed workflow ...",resp.text)
     observation = resp.text
