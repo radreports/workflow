@@ -236,7 +236,8 @@ def process(data):
             downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
         inferLits(niftiIN,niftiout)
         Modality = " CT-Abdoman"
-        bodypartExamined = "Liver "
+        bodypartExamined = "Abdmomen Liver "
+        # inference_findings = "Abdoman OAR "
         inference_findings = liver.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         
     if bodyPart.lower() == "lung".lower():
@@ -291,7 +292,7 @@ def process(data):
 
     #  create diagnosticReport
     url = api_url + "/DiagnosticReport"
-    data = helper.create_diagnosticReport(patient_id,study_id,Modality,inference_findings,observation_id)
+    data = helper.create_diagnosticReport(patient_id,study_id,Modality,inference_findings,observation_id,seriesID,api_url)
     resp = requests.post(url, data = json.dumps(data),headers = headers)
     print("completed workflow ...",resp.text)
 
