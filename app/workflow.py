@@ -151,6 +151,18 @@ def inferThor(nifti_in,nifti_out):
             f.write(chunk)
     f.close()
 
+def inferColon(nifti_in,nifti_out):
+    print()
+    local_filename = nifti_out + "/prediction.nii.gz"
+    myurl = 'http://models.deepmd.io/colon/predict'
+    # myurl = "http://104.171.202.250:5000/lits/predict"
+    fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
+    r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
+    f = open(local_filename, 'wb')
+    for chunk in r.iter_content(chunk_size=512 * 1024): 
+        if chunk: # filter out keep-alive new chunks
+            f.write(chunk)
+    f.close()
 
 def downloadNifti(OrthancURL,seriesID,dir_name):
     url = OrthancURL +"/series/"+seriesID+"/nifti?compress"
@@ -171,6 +183,7 @@ def process(data):
     seriesID = data['Series'][0]
     OrthancURL = data['pacs_url']
     api_url = data["api_url"]
+    ehr_url = data["ehr_url"]
     study_id = data["ImagingStudy"]
     imagingStudy_id = data["study_id"]
     patient_id = data["patient_id"]
@@ -253,6 +266,20 @@ def process(data):
         inference_findings = lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         # abdoman.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
 
+    if bodyPart.lower() == "colon".lower():
+        print("Processing colon ...")
+        # try:
+        #     dicom2nifti.dicom_series_to_nifti(dicomIN, niftiIN + "/infile_0000.nii.gz")
+        # except Exception as e: 
+        #     downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
+        downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
+        inferColon(niftiIN,niftiout)
+        # inferAbdoman(niftiIN,niftiout)
+        Modality = " CT-Abdoman"
+        bodypartExamined = "Colon "
+        inference_findings = colon.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        # abdoman.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+
     if bodyPart.lower() == "Abdoman".lower():
         try:
             dicom2nifti.dicom_series_to_nifti(dicomIN, niftiIN + "/infile_0000.nii.gz")
@@ -279,7 +306,7 @@ def process(data):
     # url = "http://localhost:8888/api/v1/studies"
     #  create observation
     headers = {"Content-Type":"application/json"}
-    url = api_url + "/Observation"
+    url = ehr_url + "/Observation"
     
     data = helper.createObservation(patient_id,study_id,service_id,Modality,inference_findings,bodypartExamined)
     resp = requests.post(url, data = json.dumps(data),headers = headers)
@@ -291,8 +318,15 @@ def process(data):
     
 
     #  create diagnosticReport
-    url = api_url + "/DiagnosticReport"
+    url = ehr_url + "/DiagnosticReport"
     data = helper.create_diagnosticReport(patient_id,study_id,Modality,inference_findings,observation_id,seriesID,api_url)
     resp = requests.post(url, data = json.dumps(data),headers = headers)
     print("completed workflow ...",resp.text)
 
+    url = api_url + "/Notification"
+    data = {
+        "subject": "Peter Pan",
+        "result": inference_findings
+    }
+    resp = requests.post(url, data = json.dumps(data),headers = headers)
+    print("completed workflow ...",resp.text)

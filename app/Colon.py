@@ -5,10 +5,11 @@ import nibabel as nib
 import numpy as np
 import SimpleITK as sitk
 
-def process():
-    input_nifti_path = "liver_in/outfile.nii.gz"
-    dicom_series_path="dicom/"
-    rt_struct_path ="output/thor-rt-struct.dcm"
+def process(dicom_in,nifti_in,rt_out):
+    inference_findings = "Negative"
+    input_nifti_path = nifti_in
+    dicom_series_path=dicom_in
+    rt_struct_path = rt_out
     nii = nib.load(input_nifti_path)
     pred_nrrd_liver = nii.get_fdata() 
     print( "processing Liver ....")
@@ -48,5 +49,8 @@ def process():
     rtstruct.add_roi(mask=liver,name="Colon ")
     countzero_in2 = np.count_nonzero(tumor)
     if countzero_in2 > 0 :
-        rtstruct.add_roi(mask=tumor,name="Colon tumor ")
-    rtstruct.save('output/tumor-rt-struct')
+        inference_findings = "Colon Adenocarcinoma"
+        rtstruct.add_roi(mask=tumor,name="Colon Adenocarcinoma")
+    rtstruct.save(rt_out)
+
+    return inference_findings

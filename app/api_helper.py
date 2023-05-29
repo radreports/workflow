@@ -27,6 +27,9 @@ def getImageID(url,study_id):
     image_id = image_id["uid"]
     return image_id
 
+def get_patient(url, patient_id):
+    resp = requests.get(url + "/" + patient_id)
+
 
 def create_diagnosticReport(patient_id,study_id,Modality,findings,observation_id,seriesID,url):
     print("create_diagnosticReport",study_id)

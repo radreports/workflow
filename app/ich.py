@@ -27,7 +27,7 @@ def process(dicom_in,nifti_in,rt_out):
     countzero_in2 = np.count_nonzero(brain)
     if countzero_in2 == 0:
         
-        return "ICH Ngative"
+        return "Ngative: ICH"
         # 1. Intraparenchymal haemorrhage (IPH);
     # 2. Extra-axial haemorrhage (EAH);
     # 3. Perilesional oedema;
@@ -89,7 +89,7 @@ def process(dicom_in,nifti_in,rt_out):
         print("No IVH")
 
     rtstruct.save(rt_out+'/rt-struct')
-    return "Intracranial Haemmorage"
+    return "Positive: ICH"
 
     
     

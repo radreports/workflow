@@ -9,7 +9,7 @@ import SimpleITK as sitk
 def process(dicom_in,nifti_in,rt_out):
     # input_nifti_path = "liver_in/outfile.nii.gz"
 
-    findings = "No Findings"
+    findings = "Negative: Liver Tumor"
     print("Processing ...",nifti_in)
     print("dicom dir",dicom_in )
     input_nifti_path = nifti_in
@@ -57,7 +57,7 @@ def process(dicom_in,nifti_in,rt_out):
     rtstruct.add_roi(mask=liver,name="Liver ")
     countzero_in2 = np.count_nonzero(tumor)
     if countzero_in2 > 0 :
-        findings = "Liver Tumor"
+        findings = "Positive: Liver Tumor"
         rtstruct.add_roi(mask=tumor,name="Liver tumor ")
     rtstruct.save(rt_out+'/rt-struct')
 

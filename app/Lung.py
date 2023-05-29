@@ -39,8 +39,8 @@ def process(dicom_in,nifti_in,rt_out):
     if countzero_in2 > 0:
         rtstruct.add_roi(mask=lung,name="Lung Nodes")
         rtstruct.save(rt_out+'/rt-struct')
-        return "Lung Nodules"
+        return "Positive: Lung Nodules"
 
-    return "Negative"
+    return "Negative: Lung Nodules"
     # rtstruct.add_roi(mask=tumor,name="Lung tumor ")
     
