@@ -323,10 +323,10 @@ def process(data):
     resp = requests.post(url, data = json.dumps(data),headers = headers)
     print("completed workflow ...",resp.text)
 
-    url = api_url + "/Notification"
-    data = {
-        "subject": "Peter Pan",
-        "result": inference_findings
-    }
-    resp = requests.post(url, data = json.dumps(data),headers = headers)
+    # url = api_url + "/Notification"
+    # data = {
+    #     "subject": "Peter Pan",
+    #     "result": inference_findings
+    # }
+    # resp = requests.post(url, data = json.dumps(data),headers = headers)
     print("completed workflow ...",resp.text)
