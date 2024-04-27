@@ -2,7 +2,7 @@ import redis
 import json
 import app.workflow as wf
 # red = redis.StrictRedis('localhost',6379,password="m0bdat")
-red = redis.StrictRedis('34.170.63.108',6379,password="m0bdat",charset="utf-8",decode_responses=True)
+red = redis.StrictRedis('34.170.63.108',6379,password="m0nday",charset="utf-8",decode_responses=True)
 sub = red.pubsub()
 sub.subscribe("test")
 for messages in sub.listen():
