@@ -24,6 +24,12 @@ from beren import Orthanc
 import requests, json
 import numpy as np
 
+
+lungx = "http://104.171.203.36:5000/predict/Task006_Lung"
+liverx = "http://104.171.203.36:5000/predict/Task003_Liver"
+THOR_X = "http://104.171.203.36:5000/predict/Task055_SegTHOR"
+ABD_X = "http://104.171.203.36:5000/predict/Task017_AbdominalOrganSegmentation"
+HAN_X = ""
 def unarchieve(zipDir,outDir):
     with zipfile.ZipFile(zipDir) as zip_file:
         for member in zip_file.namelist():
@@ -89,7 +95,7 @@ def inferCXR(image_in,dicom_out,image_out=None):
 def inferLits(nifti_in,nifti_out):
     print()
     local_filename = nifti_out + "/prediction.nii.gz"
-    myurl = 'http://models.deepmd.io/lits/predict'
+    myurl = liverx
     # myurl = "http://104.171.202.250:5000/lits/predict"
     fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
     r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
@@ -115,7 +121,7 @@ def inferICH(nifti_in,nifti_out):
 def inferLungs(nifti_in,nifti_out):
     print("processing lung task ...")
     local_filename = nifti_out + "/prediction.nii.gz"
-    myurl = 'http://models.deepmd.io/lung/predict'
+    myurl = lungx
     # myurl = "http://104.171.202.250:5000/lits/predict"
     fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
     r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
@@ -128,7 +134,7 @@ def inferLungs(nifti_in,nifti_out):
 def inferAbdoman(nifti_in,nifti_out):
     print()
     local_filename = nifti_out + "/prediction.nii.gz"
-    myurl = 'http://models.deepmd.io/abdoman/predict'
+    myurl = ABD_X
     # myurl = "http://104.171.202.250:5000/lits/predict"
     fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
     r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
@@ -141,7 +147,7 @@ def inferAbdoman(nifti_in,nifti_out):
 def inferThor(nifti_in,nifti_out):
     print()
     local_filename = nifti_out + "/prediction.nii.gz"
-    myurl = 'http://models.deepmd.io/thoractic/predict'
+    myurl = THOR_X
     # myurl = "http://104.171.202.250:5000/lits/predict"
     fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
     r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
