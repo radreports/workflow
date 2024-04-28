@@ -191,6 +191,7 @@ def process(data):
     api_url = data["api_url"]
     ehr_url = data["ehr_url"]
     study_id = data["ImagingStudy"]
+    ParentStudy = data["ParentStudy"]
     imagingStudy_id = data["study_id"]
     patient_id = data["patient_id"]
     service_id = data["service_id"]
@@ -213,7 +214,9 @@ def process(data):
     niftiout = tempfile.mkdtemp(dir=workingDir)
     rtstructureout = tempfile.mkdtemp(dir=workingDir)
    
-    getArchieve(seriesID,orthanc,archieveDir)
+    # getArchieve(seriesID,orthanc,archieveDir)
+    # //ParentStudy
+    getArchieve(ParentStudy,orthanc,archieveDir)
     unarchieve(archieveDir + "/my_file.zip",dicomIN)
     
     # Lung
