@@ -9,7 +9,8 @@ def process(dicom_in,nifti_in,rt_out):
     print("Processing ...",nifti_in)
     print("dicom dir",dicom_in )
     input_nifti_path = nifti_in
-    dicom_series_path="dicom/"
+    # dicom_series_path="dicom/"
+    dicom_series_path=dicom_in +"/"
     # rt_struct_path ="output/tumor-rt-struct.dcm"
     nii = nib.load(input_nifti_path)
     pred_nrrd_segthor = nii.get_fdata() 
@@ -45,17 +46,22 @@ def process(dicom_in,nifti_in,rt_out):
     # tmp = pred_nrrd_heart
     # print(tmp.shape)
     # heart = np.flipud(heart)
-    heart = np.rot90(heart)
-    heart = np.flipud(heart)
+    heart = np.rot90(heart, 1, (0, 1)) 
     # heart = np.rot90(heart)
-    aorta = np.rot90(aorta)
-    aorta = np.flipud(aorta)
+    # heart = np.flipud(heart)
+    # heart = np.rot90(heart)
 
-    trachea = np.rot90(trachea)
-    trachea = np.flipud(trachea)
+    aorta = np.rot90(aorta, 1, (0, 1)) 
+    # aorta = np.rot90(aorta)
+    # aorta = np.flipud(aorta)
 
-    esophagus = np.rot90(esophagus)
-    esophagus = np.flipud(esophagus)
+    trachea = np.rot90(trachea, 1, (0, 1)) 
+    # trachea = np.rot90(trachea)
+    # trachea = np.flipud(trachea)
+
+    esophagus = np.rot90(esophagus, 1, (0, 1)) 
+    # esophagus = np.rot90(esophagus)
+    # esophagus = np.flipud(esophagus)
     # if os.path.isfile(rt_struct_path):
     #     rtstruct = RTStructBuilder.create_from(dicom_series_path,rt_struct_path)
     # else:

@@ -17,19 +17,22 @@ import app.Kidney as kidney
 import app.Abdoman as abdoman
 import app.Colon as colon
 import app.Pancreas as pancreas
+import app.Totalseg as totalseg
 import app.api_helper as helper
 from . import dicom_util
 import dicom2nifti
 from beren import Orthanc
 import requests, json
 import numpy as np
+import app.ReportGenerator as reportGenerator
 
-
-lungx = "http://104.171.203.36:5000/predict/Task006_Lung"
-liverx = "http://104.171.203.36:5000/predict/Task003_Liver"
-THOR_X = "http://104.171.203.36:5000/predict/Task055_SegTHOR"
-ABD_X = "http://104.171.203.36:5000/predict/Task017_AbdominalOrganSegmentation"
+lungx = "http://104.171.202.250:5000/predict/Task006_Lung"
+liverx = "http://104.171.202.250:5000/predict/Task003_Liver"
+THOR_X = "http://104.171.202.250:5000/predict/Task055_SegTHOR"
+ABD_X = "http://104.171.202.250:5000/predict/Task017_AbdominalOrganSegmentation"
 HAN_X = ""
+COLON_X = "http://104.171.202.250:5000/predict/Task010_Colon"
+TOTAL_SEG = "http://104.171.202.250:5001/predict/totalseg"
 def unarchieve(zipDir,outDir):
     with zipfile.ZipFile(zipDir) as zip_file:
         for member in zip_file.namelist():
@@ -108,7 +111,7 @@ def inferLits(nifti_in,nifti_out):
 def inferICH(nifti_in,nifti_out):
     print("from inferICH")
     local_filename = nifti_out + "/prediction.nii.gz"
-    myurl = 'http://models.deepmd.io/ich/predict'
+    myurl = 'http://104.171.202.250:8888/ich/predict'
     # myurl = "http://104.171.202.250:5000/lits/predict"
     fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
     r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
@@ -157,10 +160,22 @@ def inferThor(nifti_in,nifti_out):
             f.write(chunk)
     f.close()
 
+def inferTotalSeg(nifti_in,nifti_out):
+    print()
+    local_filename = nifti_out + "/prediction.nii"
+    myurl = TOTAL_SEG
+    # myurl = "http://104.171.202.250:5000/lits/predict"
+    fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
+    r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
+    f = open(local_filename, 'wb')
+    for chunk in r.iter_content(chunk_size=512 * 1024): 
+        if chunk: # filter out keep-alive new chunks
+            f.write(chunk)
+    f.close()
 def inferColon(nifti_in,nifti_out):
     print()
     local_filename = nifti_out + "/prediction.nii.gz"
-    myurl = 'http://models.deepmd.io/colon/predict'
+    myurl = COLON_X
     # myurl = "http://104.171.202.250:5000/lits/predict"
     fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
     r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
@@ -246,7 +261,7 @@ def process(data):
         except Exception as e: 
             downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
         inferThor(niftiIN,niftiout)
-        Modality = " CT-Abdoman"
+        Modality = " CT-Lungs"
         bodypartExamined = "OAR Thoractic"
         thor.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         
@@ -270,7 +285,7 @@ def process(data):
         downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
         inferLungs(niftiIN,niftiout)
         # inferAbdoman(niftiIN,niftiout)
-        Modality = " CT-Abdoman"
+        Modality = " CT-Lungs"
         bodypartExamined = "Lung Nodules"
         inference_findings = lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         # abdoman.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
@@ -298,10 +313,23 @@ def process(data):
         inferAbdoman(niftiIN,niftiout)
         Modality = " CT-Abdoman"
         bodypartExamined = "Abdoman OAR"
-        inference_findings =  "Abdoman OAR"
+        inference_findings =  "OAR Abdoman"
         # lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         abdoman.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
-            
+     
+    if bodyPart.lower() == "totalseg".lower():
+        try:
+            dicom2nifti.dicom_series_to_nifti(dicomIN, niftiIN + "/infile_0000.nii.gz")
+        except Exception as e: 
+            downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
+        # inferLungs(niftiIN,niftiout)
+        inferTotalSeg(niftiIN,niftiout)
+        Modality = " CT-Total seg"
+        bodypartExamined = "Multi Organs"
+        inference_findings =  "OAR Multi Organs"
+        # lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        totalseg.process(dicomIN,niftiout +"/prediction.nii",rtstructureout)
+
     if os.path.isfile(rtstructureout + '/rt-struct.dcm'):
         fileobj = open(rtstructureout + '/rt-struct.dcm', 'rb')
         headers = {"Content-Type":"application/binary",}
@@ -314,23 +342,31 @@ def process(data):
     # }
     # url = "http://localhost:8888/api/v1/studies"
     #  create observation
-    headers = {"Content-Type":"application/json"}
-    url = ehr_url + "/Observation"
-    
-    data = helper.createObservation(patient_id,study_id,service_id,Modality,inference_findings,bodypartExamined)
-    resp = requests.post(url, data = json.dumps(data),headers = headers)
-    print("completed workflow ...",resp.text)
-    observation = resp.text
-    observation = json.loads(observation)
-    observation_id = observation["id"]
-    observation_id = "Observation/" + observation_id
-    
+        
+    if bodyPart.lower() == "lung".lower():
+        print("Going to generate diagnostic Report for Lung nodules")
+        reportGenerator.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz")
 
-    #  create diagnosticReport
-    url = ehr_url + "/DiagnosticReport"
-    data = helper.create_diagnosticReport(patient_id,study_id,Modality,inference_findings,observation_id,seriesID,api_url)
-    resp = requests.post(url, data = json.dumps(data),headers = headers)
-    print("completed workflow ...",resp.text)
+
+    else:
+
+        headers = {"Content-Type":"application/json"}
+        url = ehr_url + "/Observation"
+        
+        data = helper.createObservation(patient_id,study_id,service_id,Modality,inference_findings,bodypartExamined)
+        resp = requests.post(url, data = json.dumps(data),headers = headers)
+        print("completed workflow ...",resp.text)
+        observation = resp.text
+        observation = json.loads(observation)
+        observation_id = observation["id"]
+        observation_id = "Observation/" + observation_id
+        
+
+        #  create diagnosticReport
+        url = ehr_url + "/DiagnosticReport"
+        data = helper.create_diagnosticReport(patient_id,study_id,Modality,inference_findings,observation_id,seriesID,api_url)
+        resp = requests.post(url, data = json.dumps(data),headers = headers)
+        print("completed workflow ...",resp.text)
 
     # url = api_url + "/Notification"
     # data = {
