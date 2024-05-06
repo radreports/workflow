@@ -33,6 +33,19 @@ params = {
 }
 
 extractor = featureextractor.RadiomicsFeatureExtractor(params)
+
+def getImageID(url,study_id):
+    print("getImageID ...",url + "/" + study_id)
+    resp = requests.get(url + "/" + "ImagingStudy/"+study_id)
+    imaging = resp.text
+    print(imaging)
+    imaging = json.loads(imaging)
+    series = imaging['series']
+    print("series::",series)
+    image_id = series[0]
+    print("image_id::",image_id["uid"])
+    image_id = image_id["uid"]
+    return image_id
 def nifti_to_sitk(nifti_file_path):
     # Load NIfTI file using nibabel
     nii = nib.load(nifti_file_path)
@@ -49,6 +62,7 @@ def convert_to_binary_mask(mask_image):
     # Assuming labels are integers, where 1 is the target label (lung nodules)
     binary_mask = mask_image == 1  # This will create a binary mask
     return binary_mask
+
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal):
@@ -60,6 +74,7 @@ class DecimalEncoder(json.JSONEncoder):
 def load_nifti_as_sitk(path):
     """Load a NIfTI file as a SimpleITK Image."""
     return sitk.ReadImage(path)   
+
 def extract_features(image_path, mask_path):
     sitk_image = load_nifti_as_sitk(image_path)
     sitk_mask = load_nifti_as_sitk(mask_path)
@@ -83,7 +98,8 @@ def create_observation(feature_name, feature_value, patient_id, imaging_study_id
                 system='http://terminology.hl7.org/CodeSystem/observation-category',
                 code=feature_name,
                 display='Radiomic Feature'
-            )]
+            )],
+            text = feature_name
         ),
         subject=Reference(
             reference=f'/{patient_id}'
@@ -161,7 +177,7 @@ def process(FHIR_SERVER_URL,patient_id,imaging_study_id,image_path,mask_path):
     # imaging_study_id = '456'
     # image_path = 'path_to_dicom_image.dcm'
     # mask_path = 'path_to_nodule_mask.nii'
-
+    image_id = getImageID(FHIR_SERVER_URL,imaging_study_id)
     features = extract_features(image_path, mask_path)
     observations = [create_observation(name, value, patient_id, imaging_study_id) for name, value in features.items()]
     # print("Observation   ::",observations)
@@ -196,7 +212,7 @@ def process(FHIR_SERVER_URL,patient_id,imaging_study_id,image_path,mask_path):
         conclusionCode = [CodeableConcept(
             coding=[Coding(
                 system='http://loinc.org',
-                code=imaging_study_id,  # This might be incorrect, typically should be a diagnostic code, not an ID
+                code=image_id,  # This might be incorrect, typically should be a diagnostic code, not an ID
                 display='Positive: Lung Nodules'
             )]
         )],
