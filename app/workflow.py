@@ -367,6 +367,7 @@ def process(data):
         data = helper.create_diagnosticReport(patient_id,study_id,Modality,inference_findings,observation_id,seriesID,api_url)
         resp = requests.post(url, data = json.dumps(data),headers = headers)
         print("completed workflow ...",resp.text)
+        print("completed workflow ...",resp.text)
 
     # url = api_url + "/Notification"
     # data = {
@@ -374,4 +375,4 @@ def process(data):
     #     "result": inference_findings
     # }
     # resp = requests.post(url, data = json.dumps(data),headers = headers)
-    print("completed workflow ...",resp.text)
+    
