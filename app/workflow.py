@@ -26,13 +26,13 @@ import requests, json
 import numpy as np
 import app.ReportGenerator as reportGenerator
 
-lungx = "http://104.171.202.250:5000/predict/Task006_Lung"
-liverx = "http://104.171.202.250:5000/predict/Task003_Liver"
-THOR_X = "http://104.171.202.250:5000/predict/Task055_SegTHOR"
-ABD_X = "http://104.171.202.250:5000/predict/Task017_AbdominalOrganSegmentation"
+lungx = "http://150.136.212.21:5000/predict/Task006_Lung"
+liverx = "http://150.136.212.21:5000/predict/Task003_Liver"
+THOR_X = "http://150.136.212.21:5000/predict/Task055_SegTHOR"
+ABD_X = "http://150.136.212.21:5000/predict/Task017_AbdominalOrganSegmentation"
 HAN_X = ""
-COLON_X = "http://104.171.202.250:5000/predict/Task010_Colon"
-TOTAL_SEG = "http://104.171.202.250:5001/predict/totalseg"
+COLON_X = "http://150.136.212.21:5000/predict/Task010_Colon"
+TOTAL_SEG = "http://150.136.212.21:5001/predict/totalseg"
 def unarchieve(zipDir,outDir):
     with zipfile.ZipFile(zipDir) as zip_file:
         for member in zip_file.namelist():
@@ -343,9 +343,13 @@ def process(data):
     # url = "http://localhost:8888/api/v1/studies"
     #  create observation
         
-    if bodyPart.lower() == "lung".lower():
+    if bodyPart.lower() == "lung".lower() and "positive" in inference_findings.lower():
         print("Going to generate diagnostic Report for Lung nodules")
-        reportGenerator.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz")
+        reportGenerator.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",1,inference_findings)
+
+    elif (bodyPart.lower() == "liver".lower() and "positive" in inference_findings.lower()):
+        print("Going to generate diagnostic Report for Liver Tumor")
+        reportGenerator.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",2,inference_findings)
 
 
     else:

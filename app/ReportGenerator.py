@@ -57,11 +57,16 @@ def nifti_to_sitk(nifti_file_path):
     sitk_image.SetOrigin(nii.affine[:3, 3])
     return sitk_image
 
-def convert_to_binary_mask(mask_image):
-    """Convert a labeled NIfTI mask to a binary mask."""
-    # Assuming labels are integers, where 1 is the target label (lung nodules)
-    binary_mask = mask_image == 1  # This will create a binary mask
-    return binary_mask
+def convert_to_binary_mask(sitk_mask, positive_label):
+    """Convert a mask to a binary format where only the specified `positive_label` is 1, others are 0."""
+    # Convert the image to a numpy array
+    mask_array = sitk.GetArrayFromImage(sitk_mask)
+    # Create binary mask
+    binary_mask_array = (mask_array == positive_label).astype(int)
+    # Convert back to SimpleITK image
+    binary_mask_sitk = sitk.GetImageFromArray(binary_mask_array)
+    binary_mask_sitk.CopyInformation(sitk_mask)
+    return binary_mask_sitk
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -75,12 +80,12 @@ def load_nifti_as_sitk(path):
     """Load a NIfTI file as a SimpleITK Image."""
     return sitk.ReadImage(path)   
 
-def extract_features(image_path, mask_path):
+def extract_features(image_path, mask_path,label_id):
     sitk_image = load_nifti_as_sitk(image_path)
     sitk_mask = load_nifti_as_sitk(mask_path)
 
     # Convert the mask to binary
-    binary_mask = convert_to_binary_mask(sitk_mask)
+    binary_mask = convert_to_binary_mask(sitk_mask,label_id)
 
     # nii = nib.load(mask_path)
     # pred_nrrd_lung = nii.get_fdata() 
@@ -169,7 +174,7 @@ def post_fhir_resource(resource,FHIR_SERVER_URL,headers):
         print("Response:", error.response.text)  # Log the error response
         raise
 # FHIR server base URL
-def process(FHIR_SERVER_URL,patient_id,imaging_study_id,image_path,mask_path):
+def process(FHIR_SERVER_URL,patient_id,imaging_study_id,image_path,mask_path,label_id,inference_findings):
 
     # FHIR_SERVER_URL = FHIR_SERVER_URL
 
@@ -178,7 +183,7 @@ def process(FHIR_SERVER_URL,patient_id,imaging_study_id,image_path,mask_path):
     # image_path = 'path_to_dicom_image.dcm'
     # mask_path = 'path_to_nodule_mask.nii'
     image_id = getImageID(FHIR_SERVER_URL,imaging_study_id)
-    features = extract_features(image_path, mask_path)
+    features = extract_features(image_path, mask_path,label_id)
     observations = [create_observation(name, value, patient_id, imaging_study_id) for name, value in features.items()]
     # print("Observation   ::",observations)
     headers = {'Content-Type': 'application/fhir+json'}
@@ -208,12 +213,12 @@ def process(FHIR_SERVER_URL,patient_id,imaging_study_id,image_path,mask_path):
         subject=Reference(
             reference=f'/{patient_id}'
         ),
-        conclusion="Positive: Lung Nodules",
+        conclusion=inference_findings,
         conclusionCode = [CodeableConcept(
             coding=[Coding(
                 system='http://loinc.org',
                 code=image_id,  # This might be incorrect, typically should be a diagnostic code, not an ID
-                display='Positive: Lung Nodules'
+                display=inference_findings
             )]
         )],
         # encounter=Reference(
