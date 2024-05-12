@@ -1,6 +1,7 @@
-import base64
+
 import SimpleITK as sitk
 from radiomics import featureextractor
+
 import pydicom
 import requests
 from fhir.resources.observation import Observation
@@ -9,20 +10,14 @@ from fhir.resources.codeableconcept import CodeableConcept
 from fhir.resources.coding import Coding
 from fhir.resources.diagnosticreport import DiagnosticReport
 from fhir.resources.binary import Binary
-from fhir.resources.quantity import Quantity 
-from docx import Document
-from decimal import Decimal
-import json
-import nibabel as nib
+from fhir.resources.quantity import Quantity
+
 import numpy as np
+from decimal import Decimal
+import base64
+import json
 
 
-unit_dict = {
-    'original_shape_Volume': 'mm³',
-    'original_firstorder_Entropy': None,  # No unit for dimensionless features
-    'original_firstorder_Kurtosis': None,  # No unit for histogram features
-    'original_firstorder_Skewness': None   # No unit for histogram features
-}
 
 params = {
     'imageType': {'Original': {}},
@@ -32,15 +27,64 @@ params = {
         'force2D': False
     },
     'featureClass': {
-        'shape': None,  # Extract all shape features
-        'firstorder': None,  # Extract all first-order features
-        'glcm': None,  # Extract all GLCM features
-        'glrlm': None,  # Extract all GLRLM features
-        'glszm': None  # Extract all GLSZM features
+        'shape': True,  # Enable all shape features
+        'firstorder': True  # Enable all first-order features
     }
 }
 
-extractor = featureextractor.RadiomicsFeatureExtractor(params)
+# Define the dictionary for feature units and descriptions
+feature_units_and_descriptions = {
+    'Elongation': {'unit': None, 'description': 'Ratio of the two largest principal components in the ROI'},
+    'Flatness': {'unit': None, 'description': 'Ratio of the largest to smallest principal components in the ROI'},
+    'MajorAxisLength': {'unit': 'mm', 'description': 'The largest axis length of the ROI-enclosing ellipsoid'},
+    'MinorAxisLength': {'unit': 'mm', 'description': 'The second-largest axis length of the ROI-enclosing ellipsoid'},
+    'Maximum3DDiameter': {'unit': 'mm', 'description': 'Largest pairwise Euclidean distance between surface mesh vertices'},
+    'Sphericity': {'unit': None, 'description': 'Measure of the roundness of the tumor, relative to a sphere'},
+    'SurfaceArea': {'unit': 'mm²', 'description': 'Surface area of the tumor mesh'},
+    'Energy': {'unit': None, 'description': 'Sum of squared voxel intensities'},
+    'Entropy': {'unit': None, 'description': 'Measure of randomness in voxel intensity distribution'},
+    'Kurtosis': {'unit': None, 'description': 'Peakedness of the voxel intensity distribution'},
+    'Mean': {'unit': None, 'description': 'Average of the voxel intensity values'},
+    'Skewness': {'unit': None, 'description': 'Asymmetry of the voxel intensity distribution'},
+    'Contrast': {'unit': None, 'description': 'Measure of the local intensity variation'},
+    'Correlation': {'unit': None, 'description': 'Degree of linear dependency of gray levels in the ROI'}
+    # Add more features if needed
+}
+
+# Ensure this dictionary is defined at a global level or within the same function scope where it's being used
+
+extractor = featureextractor.RadiomicsFeatureExtractor({
+    'imageType': {'Original': {}},
+    'setting': {
+        'binWidth': 25,
+        'resampledPixelSpacing': None,
+        'force2D': False
+    }
+})
+
+# Enable specific shape and firstorder features
+extractor.enableFeaturesByName(shape=['Elongation', 'Flatness', 'MajorAxisLength', 'MinorAxisLength', 'Maximum3DDiameter', 'Sphericity', 'SurfaceArea'])
+extractor.enableFeaturesByName(firstorder=['Energy', 'Entropy', 'Kurtosis', 'Mean', 'Skewness'])
+
+# Enable specific texture features from the GLCM class
+extractor.enableFeaturesByName(glcm=['Contrast', 'Correlation'])
+
+def extract_features(image_path, mask_path, label_id):
+    result = extractor.execute(image_path, mask_path)
+    # Filter results to include only those features specified and supported in the dictionary
+    features = {name: value for name, value in result.items() if name.split('_')[-1] in feature_units_and_descriptions}
+    return features
+
+def create_observation(name, value, patient_id, imaging_study_id):
+    feature_info = feature_units_and_descriptions.get(name.split('_')[-1], {'unit': None, 'description': 'No description provided'})
+    observation = Observation(
+        status='final',  # Assuming all observations are considered 'final' when created
+        code=CodeableConcept(coding=[Coding(system='http://example.org/fake-metrics', code=name, display=feature_info['description'])]),
+        subject=Reference(reference=f'/{patient_id}'),
+        # Removed the context field
+        valueQuantity=Quantity(value=value, unit=feature_info['unit'])
+    )
+    return observation
 
 def getImageID(url,study_id):
     print("getImageID ...",url + "/" + study_id)
@@ -79,78 +123,16 @@ def convert_to_binary_mask(sitk_mask, positive_label):
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal):
-            return float(obj)  # or use str(obj) if precision is critical
+            return float(obj)  # Convert Decimal to float for JSON serialization
         if isinstance(obj, bytes):
-            return base64.b64encode(obj).decode('utf-8')  # convert bytes to base64 string
+            return base64.b64encode(obj).decode('utf-8')  # Convert bytes to base64 string
         return super(DecimalEncoder, self).default(obj)
-
 def load_nifti_as_sitk(path):
     """Load a NIfTI file as a SimpleITK Image."""
     return sitk.ReadImage(path)   
 
-def extract_features(image_path, mask_path,label_id):
-    sitk_image = load_nifti_as_sitk(image_path)
-    sitk_mask = load_nifti_as_sitk(mask_path)
 
-    # Convert the mask to binary
-    binary_mask = convert_to_binary_mask(sitk_mask,label_id)
 
-    # nii = nib.load(mask_path)
-    # pred_nrrd_lung = nii.get_fdata() 
-    extracted_features = extractor.execute(sitk_image, binary_mask)
-    # Filter out non-numeric and metadata entries
-    features = {k: v for k, v in extracted_features.items() if isinstance(v, (int, float))}
-    return features
-
-def create_observation(feature_name, feature_value, patient_id, imaging_study_id, unit_dict):
-    # Create the FHIR Observation resource
-    unit = unit_dict.get(feature_name, None)
-    observation = Observation(
-        status='final',
-        code=CodeableConcept(
-            coding=[Coding(
-                system='http://terminology.hl7.org/CodeSystem/observation-category',
-                code=feature_name,
-                display='Radiomic Feature'
-            )],
-            text = feature_name
-        ),
-        subject=Reference(
-            reference=f'/{patient_id}'
-        ),
-        # encounter=Reference(
-        #     reference=f'ImagingStudy/{imaging_study_id}'
-        # ),
-        valueQuantity=Quantity(
-            value=float(feature_value),  # Now safely converted to float
-            unit=unit,
-            system='http://unitsofmeasure.org',
-            code='1'
-        )
-    )
-    return observation
-
-# def create_observation(feature_name, feature_value, patient_id, imaging_study_id):
-#     observation = Observation(
-#         status='final',
-#         code=CodeableConcept(
-#             coding=[Coding(
-#                 system='http://terminology.hl7.org/CodeSystem/observation-category',
-#                 code=feature_name,
-#                 display='Radiomic Feature'
-#             )]
-#         ),
-#         subject=Reference(
-#             reference=f'Patient/{patient_id}'
-#         ),
-#         valueQuantity=Quantity(
-#             value=float(feature_value),
-#             unit='Unit',
-#             system='http://unitsofmeasure.org',
-#             code='1'
-#         )
-#     )
-#     return observation
 
 def generate_report_doc(features):
     doc = Document()
@@ -183,62 +165,34 @@ def post_fhir_resource(resource,FHIR_SERVER_URL,headers):
         print("Response:", error.response.text)  # Log the error response
         raise
 # FHIR server base URL
-def process(FHIR_SERVER_URL,patient_id,imaging_study_id,image_path,mask_path,label_id,inference_findings):
-
-    # FHIR_SERVER_URL = FHIR_SERVER_URL
-
-    # patient_id = '123'
-    # imaging_study_id = '456'
-    # image_path = 'path_to_dicom_image.dcm'
-    # mask_path = 'path_to_nodule_mask.nii'
-    image_id = getImageID(FHIR_SERVER_URL,imaging_study_id)
-    features = extract_features(image_path, mask_path,label_id)
-    observations = [create_observation(name, value, patient_id, imaging_study_id, unit_dict) for name, value in features.items()]
-    # print("Observation   ::",observations)
+def process(FHIR_SERVER_URL, patient_id, imaging_study_id, image_path, mask_path, label_id, inference_findings):
+    image_id = getImageID(FHIR_SERVER_URL, imaging_study_id)
+    features = extract_features(image_path, mask_path, label_id)
+    observations = [create_observation(name, value, patient_id, imaging_study_id) for name, value in features.items()]
     headers = {'Content-Type': 'application/fhir+json'}
-    observation_ids = [post_fhir_resource(obs,FHIR_SERVER_URL,headers) for obs in observations]
+    observation_ids = [post_fhir_resource(obs, FHIR_SERVER_URL, headers) for obs in observations]
 
-    # report_doc = generate_report_doc(features)
-    # report_doc_path = 'Lung_Nodule_Report.docx'
-    # report_doc.save(report_doc_path)
-
-    # # Post the report document as a binary resource
-    # with open(report_doc_path, 'rb') as f:
-    #     # binary = Binary(contentType='application/msword', data=f.read().encode('base64'))
-    #     binary = Binary(contentType='application/msword', data=f.read())
-    #     headers = {'Content-Type': 'application/msword'}
-    #     binary_id = post_fhir_resource(binary,FHIR_SERVER_URL,headers)
-
-    # Create and post diagnostic report
+    # Adjust the use of 'code' in 'conclusionCode' to use a proper diagnostic code
     diagnostic_report = DiagnosticReport(
         status='final',
         code=CodeableConcept(
             coding=[Coding(
                 system='http://loinc.org',
-                code='18748-4',
+                code='18748-4',  # LOINC code for 'Radiology Report'
                 display='Radiology Report'
             )]
         ),
-        subject=Reference(
-            reference=f'/{patient_id}'
-        ),
+        subject=Reference(reference=f'/{patient_id}'),
         conclusion=inference_findings,
-        conclusionCode = [CodeableConcept(
+        conclusionCode=[CodeableConcept(
             coding=[Coding(
-                system='http://loinc.org',
-                code=image_id,  # This might be incorrect, typically should be a diagnostic code, not an ID
+                system='http://snomed.info/sct',  # Example, use SNOMED CT if appropriate
+                code='123456',  # Example, use a specific SNOMED CT code relevant to the findings
                 display=inference_findings
             )]
         )],
-        # encounter=Reference(
-        #     reference=f'ImagingStudy/{imaging_study_id}'
-        # ),
         result=[Reference(reference=f'Observation/{obs_id}') for obs_id in observation_ids]
-        # result=[Reference(reference=f'Observation/{obs_id}') for obs_id in observation_ids],
-        # presentedForm=[Reference(reference=f'Binary/{binary_id}')]
     )
-    print(diagnostic_report)
-    headers = {'Content-Type': 'application/fhir+json'}
-    diagnostic_report_id = post_fhir_resource(diagnostic_report,FHIR_SERVER_URL,headers)
 
+    diagnostic_report_id = post_fhir_resource(diagnostic_report, FHIR_SERVER_URL, headers)
     print(f'Diagnostic Report ID: {diagnostic_report_id}')
