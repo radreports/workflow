@@ -178,7 +178,7 @@ def process(FHIR_SERVER_URL, patient_id, imaging_study_id, image_path, mask_path
         code=CodeableConcept(
             coding=[Coding(
                 system='http://loinc.org',
-                code='18748-4',  # LOINC code for 'Radiology Report'
+                code=image_id,  # LOINC code for 'Radiology Report'
                 display='Radiology Report'
             )]
         ),
@@ -187,7 +187,7 @@ def process(FHIR_SERVER_URL, patient_id, imaging_study_id, image_path, mask_path
         conclusionCode=[CodeableConcept(
             coding=[Coding(
                 system='http://snomed.info/sct',  # Example, use SNOMED CT if appropriate
-                code='123456',  # Example, use a specific SNOMED CT code relevant to the findings
+                code=image_id,  # Example, use a specific SNOMED CT code relevant to the findings
                 display=inference_findings
             )]
         )],
