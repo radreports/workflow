@@ -6,6 +6,26 @@ import os
 from rt_utils import RTStructBuilder
 from tqdm import tqdm
 
+amos_classes = {
+   
+    
+    1: "spleen",
+    2: "right kidney",
+    3: "left kidney",
+    4: "gall bladder",
+    5: "esophagus",
+    6: "liver",
+    7: "stomach",
+    8: "arota",
+    9: "postcava",
+    10: "pancreas",
+    11: "right adrenal gland",
+    12: "left adrenal gland",
+    13: "duodenum",
+    14: "bladder",
+    15: "prostate/uterus"
+}
+
 selected_classes = {
         1: "spleen",
         2: "kidney_right",
@@ -125,6 +145,38 @@ selected_classes = {
         116: "sternum",
         117: "costal_cartilages"
     }
+
+def processamos(dicom_in,nifti_in,rt_out):
+    """
+    dcm_reference_file: a directory with dcm slices ??
+    """
+    
+    
+
+    input_nifti_path = nifti_in
+    # dicom_series_path="dicom/"
+    dicom_series_path=dicom_in +"/"
+    # rt_struct_path ="output/tumor-rt-struct.dcm"
+    nii = nib.load(input_nifti_path)
+    img_data = nii.get_fdata() 
+    # create new RT Struct - requires original DICOM
+    rtstruct = RTStructBuilder.create_new(dicom_series_path=dicom_series_path)
+
+    # add mask to RT Struct
+    for class_idx, class_name in tqdm(amos_classes.items()):
+        binary_img = img_data == class_idx
+        if binary_img.sum() > 0:  # only save none-empty images
+
+            # rotate nii to match DICOM orientation
+            binary_img = np.rot90(binary_img, 1, (0, 1))  # rotate segmentation in-plane
+
+            # add segmentation to RT Struct
+            rtstruct.add_roi(
+                mask=binary_img,  # has to be a binary numpy array
+                name=class_name
+            )
+
+    rtstruct.save(rt_out+'/rt-struct')
 def process(dicom_in,nifti_in,rt_out):
     """
     dcm_reference_file: a directory with dcm slices ??

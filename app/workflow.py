@@ -26,13 +26,17 @@ import requests, json
 import numpy as np
 import app.ReportGenerator as reportGenerator
 
-lungx = "http://150.136.212.21:5000/predict/Task006_Lung"
-liverx = "http://150.136.212.21:5000/predict/Task003_Liver"
-THOR_X = "http://150.136.212.21:5000/predict/Task055_SegTHOR"
-ABD_X = "http://150.136.212.21:5000/predict/Task017_AbdominalOrganSegmentation"
+# lungx = "http://104.171.203.4:5000/predict/v2/Task006_Lung"
+lungx = "http://104.171.203.4:5000/predict/Task006_Lung"
+liverx = "http://104.171.203.4:5000/predict/Task003_Liver"
+THOR_X = "http://104.171.203.4:5000/predict/Task055_SegTHOR"
+ABD_X = "http://104.171.203.4:5000/predict/Task017_AbdominalOrganSegmentation"
 HAN_X = ""
 COLON_X = "http://150.136.212.21:5000/predict/Task010_Colon"
 TOTAL_SEG = "http://150.136.212.21:5001/predict/totalseg"
+AMOS = "http://104.171.203.4:5000/predict/v2/219"
+
+
 def unarchieve(zipDir,outDir):
     with zipfile.ZipFile(zipDir) as zip_file:
         for member in zip_file.namelist():
@@ -91,7 +95,18 @@ def inferCXR(image_in,dicom_out,image_out=None):
                 print(i, predictions[i])
             return result
 
-        
+def inferAMOS(nifti_in,nifti_out):
+    print()
+    local_filename = nifti_out + "/prediction.nii.gz"
+    myurl = AMOS
+    # myurl = "http://104.171.202.250:5000/lits/predict"
+    fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
+    r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
+    f = open(local_filename, 'wb')
+    for chunk in r.iter_content(chunk_size=512 * 1024): 
+        if chunk: # filter out keep-alive new chunks
+            f.write(chunk)
+    f.close()      
 
                
 
@@ -265,7 +280,16 @@ def process(data):
         bodypartExamined = "OAR Thoractic"
         thor.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         
-
+    if bodyPart.lower() == "totalseg".lower():
+        try:
+            dicom2nifti.dicom_series_to_nifti(dicomIN, niftiIN + "/infile_0000.nii.gz")
+        except Exception as e: 
+            downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
+        inferAMOS(niftiIN,niftiout)
+        Modality = " CT"
+        bodypartExamined = "OAR AMOS"
+        totalseg.processamos(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        
     if bodyPart.lower() == "liver".lower():
         try:
             dicom2nifti.dicom_series_to_nifti(dicomIN, niftiIN + "/infile_0000.nii.gz")
@@ -317,7 +341,7 @@ def process(data):
         # lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         abdoman.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
      
-    if bodyPart.lower() == "totalseg".lower():
+    if bodyPart.lower() == "madechanges_totalseg".lower():
         try:
             dicom2nifti.dicom_series_to_nifti(dicomIN, niftiIN + "/infile_0000.nii.gz")
         except Exception as e: 

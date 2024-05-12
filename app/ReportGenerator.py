@@ -16,6 +16,14 @@ import json
 import nibabel as nib
 import numpy as np
 
+
+unit_dict = {
+    'original_shape_Volume': 'mm³',
+    'original_firstorder_Entropy': None,  # No unit for dimensionless features
+    'original_firstorder_Kurtosis': None,  # No unit for histogram features
+    'original_firstorder_Skewness': None   # No unit for histogram features
+}
+
 params = {
     'imageType': {'Original': {}},
     'setting': {
@@ -94,8 +102,9 @@ def extract_features(image_path, mask_path,label_id):
     features = {k: v for k, v in extracted_features.items() if isinstance(v, (int, float))}
     return features
 
-def create_observation(feature_name, feature_value, patient_id, imaging_study_id):
+def create_observation(feature_name, feature_value, patient_id, imaging_study_id, unit_dict):
     # Create the FHIR Observation resource
+    unit = unit_dict.get(feature_name, None)
     observation = Observation(
         status='final',
         code=CodeableConcept(
@@ -114,7 +123,7 @@ def create_observation(feature_name, feature_value, patient_id, imaging_study_id
         # ),
         valueQuantity=Quantity(
             value=float(feature_value),  # Now safely converted to float
-            unit='Unit',
+            unit=unit,
             system='http://unitsofmeasure.org',
             code='1'
         )
@@ -184,7 +193,7 @@ def process(FHIR_SERVER_URL,patient_id,imaging_study_id,image_path,mask_path,lab
     # mask_path = 'path_to_nodule_mask.nii'
     image_id = getImageID(FHIR_SERVER_URL,imaging_study_id)
     features = extract_features(image_path, mask_path,label_id)
-    observations = [create_observation(name, value, patient_id, imaging_study_id) for name, value in features.items()]
+    observations = [create_observation(name, value, patient_id, imaging_study_id, unit_dict) for name, value in features.items()]
     # print("Observation   ::",observations)
     headers = {'Content-Type': 'application/fhir+json'}
     observation_ids = [post_fhir_resource(obs,FHIR_SERVER_URL,headers) for obs in observations]
