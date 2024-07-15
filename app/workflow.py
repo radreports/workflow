@@ -6,10 +6,16 @@ import requests
 import tempfile, pydicom
 from PIL import Image
 import app.Thoractic as thor
-import app.Liver as liver
-import app.Liver_seg as liver_seg
+# import app.Liver as liver
+import app.Liver_seg2 as liver_seg
 import app.Lung as lung
-import app.Lung_seg as lung_seg
+# import app.Lung_RT as lung
+import app.Lung_seg2 as lung_seg
+import app.Lung_NSCLC_seg as lung_seg_nsclc
+import app.breast_mri_seg as breast_mri_seg
+import app.Breast_Fibroglandular_seg as breast_fibroglandular_seg
+
+import app.Hepatic_seg as hepatic_seg
 import app.ich as ich
 import app.ich2 as ich2
 import app.ich_seg as ich_seg
@@ -19,22 +25,33 @@ import app.Colon as colon
 import app.Pancreas as pancreas
 import app.Totalseg as totalseg
 import app.api_helper as helper
+import app.lung_nodules as lung_nodules
 from . import dicom_util
 import dicom2nifti
 from beren import Orthanc
 import requests, json
 import numpy as np
 import app.ReportGenerator as reportGenerator
-
+import app.process_liver as process_liver
+import app.amos_seg as amos_seg
+import app.DiagnosticReport_Lungnodules as diagnosticReport
 # lungx = "http://104.171.203.4:5000/predict/v2/Task006_Lung"
-lungx = "http://104.171.203.4:5000/predict/Task006_Lung"
-liverx = "http://104.171.203.4:5000/predict/Task003_Liver"
+# lungx = "http://104.171.203.4:5000/predict/Task777_CT_Nodules"
+lungx = "http://104.171.203.4:5000/predict/Task775_CT_NSCLC_RG"
+# liverx = "http://104.171.203.4:5000/predict/Task003_Liver"
+liverx = "http://104.171.203.4:5000/predict/v2/006"
 THOR_X = "http://104.171.203.4:5000/predict/Task055_SegTHOR"
 ABD_X = "http://104.171.203.4:5000/predict/Task017_AbdominalOrganSegmentation"
 HAN_X = ""
-COLON_X = "http://150.136.212.21:5000/predict/Task010_Colon"
-TOTAL_SEG = "http://150.136.212.21:5001/predict/totalseg"
+COLON_X = "http://104.171.203.4:5000/predict/Task010_Colon"
+HEPATIC = "http://104.171.203.4:5000/predict/Task008_HepaticVessel"
+ICH_NNUNET = "http://104.171.203.4:5000/predict/ich"
+
+TOTAL_SEG = "http://104.171.203.4:5001/predict/totalseg"
 AMOS = "http://104.171.203.4:5000/predict/v2/219"
+# Dataset011_Breast
+BREAST_MRI = "http://104.171.203.4:5000/predict/v2/011"
+FibroglandularBreast= "http://104.171.203.4:5000/predict/v2/009"
 
 
 def unarchieve(zipDir,outDir):
@@ -113,7 +130,8 @@ def inferAMOS(nifti_in,nifti_out):
 def inferLits(nifti_in,nifti_out):
     print()
     local_filename = nifti_out + "/prediction.nii.gz"
-    myurl = liverx
+    # myurl = liverx
+    myurl = HEPATIC
     # myurl = "http://104.171.202.250:5000/lits/predict"
     fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
     r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
@@ -126,9 +144,11 @@ def inferLits(nifti_in,nifti_out):
 def inferICH(nifti_in,nifti_out):
     print("from inferICH")
     local_filename = nifti_out + "/prediction.nii.gz"
-    myurl = 'http://104.171.202.250:8888/ich/predict'
+    # myurl = 'http://104.171.203.4:5000/infer'
+    myurl = ICH_NNUNET
     # myurl = "http://104.171.202.250:5000/lits/predict"
     fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
+    # r = requests.post(myurl,  files={"file": ("infile_0000.nii.gz", fileobj)}, verify=False)
     r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
     f = open(local_filename, 'wb')
     for chunk in r.iter_content(chunk_size=512 * 1024): 
@@ -140,6 +160,32 @@ def inferLungs(nifti_in,nifti_out):
     print("processing lung task ...")
     local_filename = nifti_out + "/prediction.nii.gz"
     myurl = lungx
+    # myurl = "http://104.171.202.250:5000/lits/predict"
+    fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
+    r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
+    f = open(local_filename, 'wb')
+    for chunk in r.iter_content(chunk_size=512 * 1024): 
+        if chunk: # filter out keep-alive new chunks
+            f.write(chunk)
+    f.close()
+
+def inferBreastMRI(nifti_in,nifti_out):
+    print("processing lung task ...")
+    local_filename = nifti_out + "/prediction.nii.gz"
+    myurl = BREAST_MRI
+    # myurl = "http://104.171.202.250:5000/lits/predict"
+    fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
+    r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
+    f = open(local_filename, 'wb')
+    for chunk in r.iter_content(chunk_size=512 * 1024): 
+        if chunk: # filter out keep-alive new chunks
+            f.write(chunk)
+    f.close()
+
+def inferBreastFibro(nifti_in,nifti_out):
+    print("processing lung task ...")
+    local_filename = nifti_out + "/prediction.nii.gz"
+    myurl = FibroglandularBreast
     # myurl = "http://104.171.202.250:5000/lits/predict"
     fileobj = open(nifti_in + "/infile_0000.nii.gz", 'rb')
     r = requests.post(myurl,  files={"files[]": ("infile_0000.nii.gz", fileobj)}, verify=False)
@@ -267,7 +313,9 @@ def process(data):
         Modality = "Non contract CT-Head"
         bodypartExamined = "Head"
         inferICH(niftiIN,niftiout)
-        inference_findings = ich.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        # inference_findings = ich.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        ich_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",ich_seg.classes)
+        inference_findings = "Positive: ICH"
         
         
     if bodyPart.lower() == "thor".lower():
@@ -288,7 +336,8 @@ def process(data):
         inferAMOS(niftiIN,niftiout)
         Modality = " CT"
         bodypartExamined = "OAR AMOS"
-        totalseg.processamos(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        amos_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",amos_seg.amos_classes)
+        # totalseg.processamos(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         
     if bodyPart.lower() == "liver".lower():
         try:
@@ -299,7 +348,11 @@ def process(data):
         Modality = " CT-Abdoman"
         bodypartExamined = "Abdmomen Liver "
         # inference_findings = "Abdoman OAR "
-        inference_findings = liver.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        # inference_findings = liver.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        # liver_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",liver_seg.classes)
+
+        hepatic_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",hepatic_seg.classes)
+        inference_findings = "Positive: Liver Tumor and Hepatic Vessels"
         
     if bodyPart.lower() == "lung".lower():
         # try:
@@ -311,7 +364,18 @@ def process(data):
         # inferAbdoman(niftiIN,niftiout)
         Modality = " CT-Lungs"
         bodypartExamined = "Lung Nodules"
-        inference_findings = lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        # lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        lung_nodules.process_lung_nodules(niftiout +"/prediction.nii.gz",niftiout)
+        data = lung_nodules.load_json_with_int_keys(workingDir + "/nodules.json")
+        json_file_path = workingDir + "/nodules.json"
+        # with open(json_file_path, 'r') as json_file:
+        #     data = json.load(json_file)
+        
+        classes = data["classes"]
+        print(classes)
+        lung_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",lung_seg.classes)
+        # lung_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",lung_seg.classes)
+        inference_findings ="Positive: Lung Nodules"
         # abdoman.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
 
     if bodyPart.lower() == "colon".lower():
@@ -354,11 +418,33 @@ def process(data):
         # lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
         totalseg.process(dicomIN,niftiout +"/prediction.nii",rtstructureout)
 
-    if os.path.isfile(rtstructureout + '/rt-struct.dcm'):
-        fileobj = open(rtstructureout + '/rt-struct.dcm', 'rb')
-        headers = {"Content-Type":"application/binary",}
-        getdata = requests.post(OrthancURL+"/instances", data=fileobj,headers=headers )
-        print(getdata.text)
+    
+    if bodyPart.lower() == "breast_mri".lower():
+        downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
+        inferBreastMRI(niftiIN,niftiout)
+        # inferAbdoman(niftiIN,niftiout)
+        Modality = " CT-Lungs"
+        bodypartExamined = "Lung Nodules"
+        # lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        breast_mri_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",lung_seg.classes)
+        inference_findings ="Positive: Breast Cancer"
+
+    if bodyPart.lower() == "breast_fibro".lower():
+        print("Infering breast_fibro")
+        downloadNifti(OrthancURL,seriesID,niftiIN + "/infile_0000.nii.gz")
+        inferBreastFibro(niftiIN,niftiout)
+        # inferAbdoman(niftiIN,niftiout)
+        Modality = " Breast MRI"
+        bodypartExamined = "Breast MRI"
+        # lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
+        breast_fibroglandular_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",breast_fibroglandular_seg.classes)
+        inference_findings ="Breast fibroglandular"
+        
+    # if os.path.isfile(rtstructureout + '/rt-struct.dcm'):
+    #     fileobj = open(rtstructureout + '/rt-struct.dcm', 'rb')
+    #     headers = {"Content-Type":"application/binary",}
+    #     getdata = requests.post(OrthancURL+"/instances", data=fileobj,headers=headers )
+    #     print(getdata.text)
 
     # data = {
     #     "study_id":study_id,
@@ -369,12 +455,24 @@ def process(data):
         
     if bodyPart.lower() == "lung".lower() and "positive" in inference_findings.lower():
         print("Going to generate diagnostic Report for Lung nodules")
-        reportGenerator.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",1,inference_findings)
+        # reportGenerator.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",1,inference_findings)
+        diagnosticReport.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",inference_findings)
+        
+        if os.path.isfile(rtstructureout + '/rt-struct.dcm'):
+            fileobj = open(rtstructureout + '/rt-struct.dcm', 'rb')
+            headers = {"Content-Type":"application/binary",}
+            getdata = requests.post(OrthancURL+"/instances", data=fileobj,headers=headers )
+            print(getdata.text)
 
-    elif (bodyPart.lower() == "liver".lower() and "positive" in inference_findings.lower()):
+    elif (bodyPart.lower() == "liver2".lower() ):
         print("Going to generate diagnostic Report for Liver Tumor")
+        # process_liver.main(dicomIN,niftiIN + "/infile_0000.nii.gz", niftiout +"/prediction.nii.gz", rtstructureout , OrthancURL, ehr_url,study_id,patient_id)
         reportGenerator.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",2,inference_findings)
-
+        if os.path.isfile(rtstructureout + '/rt-struct.dcm'):
+            fileobj = open(rtstructureout + '/rt-struct.dcm', 'rb')
+            headers = {"Content-Type":"application/binary",}
+            getdata = requests.post(OrthancURL+"/instances", data=fileobj,headers=headers )
+            print(getdata.text)
 
     else:
 
@@ -396,6 +494,11 @@ def process(data):
         resp = requests.post(url, data = json.dumps(data),headers = headers)
         print("completed workflow ...",resp.text)
         print("completed workflow ...",resp.text)
+        if os.path.isfile(rtstructureout + '/rt-struct.dcm'): 
+            fileobj = open(rtstructureout + '/rt-struct.dcm', 'rb')
+            headers = {"Content-Type":"application/binary",}
+            getdata = requests.post(OrthancURL+"/instances", data=fileobj,headers=headers )
+            print(getdata.text)
 
     # url = api_url + "/Notification"
     # data = {

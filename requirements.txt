@@ -4,7 +4,7 @@ httpx==0.15.5
 requests==2.24.0
 pydicom
 numpy 
-opencv-python
+opencv-python==4.6.0.66
 dataclasses
 nibabel
 SimpleITK

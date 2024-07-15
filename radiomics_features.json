@@ -1,0 +1,632 @@
+{
+    "Nodule_2": {
+        "diagnostics_Versions_PyRadiomics": "v3.0.1",
+        "diagnostics_Versions_Numpy": "1.26.4",
+        "diagnostics_Versions_SimpleITK": "2.3.1",
+        "diagnostics_Versions_PyWavelet": "1.6.0",
+        "diagnostics_Versions_Python": "3.9.7",
+        "diagnostics_Configuration_Settings": {
+            "minimumROIDimensions": 2,
+            "minimumROISize": null,
+            "normalize": false,
+            "normalizeScale": 1,
+            "removeOutliers": null,
+            "resampledPixelSpacing": null,
+            "interpolator": "sitkBSpline",
+            "preCrop": false,
+            "padDistance": 5,
+            "distances": [
+                1
+            ],
+            "force2D": false,
+            "force2Ddimension": 0,
+            "resegmentRange": null,
+            "label": 1,
+            "additionalInfo": true,
+            "binWidth": 25
+        },
+        "diagnostics_Configuration_EnabledImageTypes": {
+            "Original": {}
+        },
+        "diagnostics_Image-original_Hash": "977b6f444dde58bdca021824c7beb5fc5fff5c4c",
+        "diagnostics_Image-original_Dimensionality": "3D",
+        "diagnostics_Image-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Image-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Image-original_Mean": -799.695073308824,
+        "diagnostics_Image-original_Minimum": -1000.0,
+        "diagnostics_Image-original_Maximum": 3071.0,
+        "diagnostics_Mask-original_Hash": "7ed430ecb9111315fd05df54e0fe29be01c703f2",
+        "diagnostics_Mask-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Mask-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Mask-original_BoundingBox": [
+            163,
+            289,
+            81,
+            7,
+            6,
+            3
+        ],
+        "diagnostics_Mask-original_VoxelNum": 72,
+        "diagnostics_Mask-original_VolumeNum": 1,
+        "diagnostics_Mask-original_CenterOfMassIndex": [
+            165.69444444444446,
+            291.5138888888889,
+            81.93055555555556
+        ],
+        "diagnostics_Mask-original_CenterOfMass": [
+            -87.7007378472222,
+            -243.1698133680556,
+            -420.7083333333333
+        ],
+        "original_shape_Elongation": 0.7364033009533806,
+        "original_shape_Flatness": 0.5608937830336309,
+        "original_shape_LeastAxisLength": 4.9309171709110196,
+        "original_shape_MajorAxisLength": 8.79117815184513,
+        "original_shape_Maximum2DDiameterColumn": 10.239231314417907,
+        "original_shape_Maximum2DDiameterRow": 10.239231314417907,
+        "original_shape_Maximum2DDiameterSlice": 7.437278423695223,
+        "original_shape_MeshVolume": 190.37723541259766,
+        "original_shape_MinorAxisLength": 6.473852610287994,
+        "original_shape_Sphericity": 0.832872313977344,
+        "original_shape_SurfaceArea": 192.15382889531617,
+        "original_shape_SurfaceVolumeRatio": 1.0093319638709333,
+        "original_shape_VoxelVolume": 205.99365234375,
+        "original_firstorder_Energy": 39805344.0,
+        "original_firstorder_Entropy": 5.255004126707197,
+        "original_firstorder_Kurtosis": 2.3340111070401304,
+        "original_firstorder_Maximum": 1757.0,
+        "original_firstorder_MeanAbsoluteDeviation": 516.6450617283949,
+        "original_firstorder_Mean": 408.27777777777777,
+        "original_firstorder_Median": 257.5,
+        "original_firstorder_Minimum": -425.0,
+        "original_firstorder_Range": 2182.0,
+        "original_firstorder_RootMeanSquared": 743.5401804879142,
+        "original_firstorder_Skewness": 0.6898261333676498,
+        "original_firstorder_TotalEnergy": 113884002.68554688,
+        "original_firstorder_Uniformity": 0.0304783950617284,
+        "original_firstorder_Variance": 386161.25617283955,
+        "MaximumDiameter": 10.239231314417907,
+        "SurfaceVolume": 1.0093319638709333
+    },
+    "Nodule_3": {
+        "diagnostics_Versions_PyRadiomics": "v3.0.1",
+        "diagnostics_Versions_Numpy": "1.26.4",
+        "diagnostics_Versions_SimpleITK": "2.3.1",
+        "diagnostics_Versions_PyWavelet": "1.6.0",
+        "diagnostics_Versions_Python": "3.9.7",
+        "diagnostics_Configuration_Settings": {
+            "minimumROIDimensions": 2,
+            "minimumROISize": null,
+            "normalize": false,
+            "normalizeScale": 1,
+            "removeOutliers": null,
+            "resampledPixelSpacing": null,
+            "interpolator": "sitkBSpline",
+            "preCrop": false,
+            "padDistance": 5,
+            "distances": [
+                1
+            ],
+            "force2D": false,
+            "force2Ddimension": 0,
+            "resegmentRange": null,
+            "label": 1,
+            "additionalInfo": true,
+            "binWidth": 25
+        },
+        "diagnostics_Configuration_EnabledImageTypes": {
+            "Original": {}
+        },
+        "diagnostics_Image-original_Hash": "977b6f444dde58bdca021824c7beb5fc5fff5c4c",
+        "diagnostics_Image-original_Dimensionality": "3D",
+        "diagnostics_Image-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Image-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Image-original_Mean": -799.695073308824,
+        "diagnostics_Image-original_Minimum": -1000.0,
+        "diagnostics_Image-original_Maximum": 3071.0,
+        "diagnostics_Mask-original_Hash": "a0f905a56f093c73e4eacd6e6a949b0eaaa93f5e",
+        "diagnostics_Mask-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Mask-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Mask-original_BoundingBox": [
+            365,
+            205,
+            91,
+            8,
+            7,
+            2
+        ],
+        "diagnostics_Mask-original_VoxelNum": 50,
+        "diagnostics_Mask-original_VolumeNum": 1,
+        "diagnostics_Mask-original_CenterOfMassIndex": [
+            367.86,
+            207.58,
+            91.7
+        ],
+        "diagnostics_Mask-original_CenterOfMass": [
+            109.7265625,
+            -161.203125,
+            -391.4
+        ],
+        "original_shape_Elongation": 0.6482097482678719,
+        "original_shape_Flatness": 0.5265169628806706,
+        "original_shape_LeastAxisLength": 4.472241183258879,
+        "original_shape_MajorAxisLength": 8.494011586617132,
+        "original_shape_Maximum2DDiameterColumn": 7.7357519292022445,
+        "original_shape_Maximum2DDiameterRow": 7.7357519292022445,
+        "original_shape_Maximum2DDiameterSlice": 9.212872199274027,
+        "original_shape_MeshVolume": 125.885009765625,
+        "original_shape_MinorAxisLength": 5.5059011123454775,
+        "original_shape_Sphericity": 0.7614117042926097,
+        "original_shape_SurfaceArea": 159.53179606913935,
+        "original_shape_SurfaceVolumeRatio": 1.2672819135984383,
+        "original_shape_VoxelVolume": 143.0511474609375,
+        "original_firstorder_Energy": 14913765.0,
+        "original_firstorder_Entropy": 4.134177320667437,
+        "original_firstorder_Kurtosis": 2.5890484411869177,
+        "original_firstorder_Maximum": -102.0,
+        "original_firstorder_MeanAbsoluteDeviation": 132.4536,
+        "original_firstorder_Mean": -523.54,
+        "original_firstorder_Median": -555.5,
+        "original_firstorder_Minimum": -787.0,
+        "original_firstorder_Range": 685.0,
+        "original_firstorder_RootMeanSquared": 546.1458596382472,
+        "original_firstorder_Skewness": 0.5179555315095676,
+        "original_firstorder_TotalEnergy": 42668623.92425537,
+        "original_firstorder_Uniformity": 0.0648,
+        "original_firstorder_Variance": 24181.168400000006,
+        "MaximumDiameter": 9.212872199274027,
+        "SurfaceVolume": 1.2672819135984383
+    },
+    "Nodule_4": {
+        "diagnostics_Versions_PyRadiomics": "v3.0.1",
+        "diagnostics_Versions_Numpy": "1.26.4",
+        "diagnostics_Versions_SimpleITK": "2.3.1",
+        "diagnostics_Versions_PyWavelet": "1.6.0",
+        "diagnostics_Versions_Python": "3.9.7",
+        "diagnostics_Configuration_Settings": {
+            "minimumROIDimensions": 2,
+            "minimumROISize": null,
+            "normalize": false,
+            "normalizeScale": 1,
+            "removeOutliers": null,
+            "resampledPixelSpacing": null,
+            "interpolator": "sitkBSpline",
+            "preCrop": false,
+            "padDistance": 5,
+            "distances": [
+                1
+            ],
+            "force2D": false,
+            "force2Ddimension": 0,
+            "resegmentRange": null,
+            "label": 1,
+            "additionalInfo": true,
+            "binWidth": 25
+        },
+        "diagnostics_Configuration_EnabledImageTypes": {
+            "Original": {}
+        },
+        "diagnostics_Image-original_Hash": "977b6f444dde58bdca021824c7beb5fc5fff5c4c",
+        "diagnostics_Image-original_Dimensionality": "3D",
+        "diagnostics_Image-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Image-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Image-original_Mean": -799.695073308824,
+        "diagnostics_Image-original_Minimum": -1000.0,
+        "diagnostics_Image-original_Maximum": 3071.0,
+        "diagnostics_Mask-original_Hash": "d90025c72ca4e44bc9c65df435c7d7ccb6b34427",
+        "diagnostics_Mask-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Mask-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Mask-original_BoundingBox": [
+            216,
+            166,
+            96,
+            7,
+            7,
+            3
+        ],
+        "diagnostics_Mask-original_VoxelNum": 49,
+        "diagnostics_Mask-original_VolumeNum": 1,
+        "diagnostics_Mask-original_CenterOfMassIndex": [
+            219.12244897959184,
+            168.9591836734694,
+            97.12244897959184
+        ],
+        "diagnostics_Mask-original_CenterOfMass": [
+            -35.52495216836735,
+            -123.48748405612247,
+            -375.13265306122446
+        ],
+        "original_shape_Elongation": 0.7284045369611021,
+        "original_shape_Flatness": 0.6399457195053424,
+        "original_shape_LeastAxisLength": 4.895692585090601,
+        "original_shape_MajorAxisLength": 7.650168500032807,
+        "original_shape_Maximum2DDiameterColumn": 9.209489522531909,
+        "original_shape_Maximum2DDiameterRow": 9.052826868796632,
+        "original_shape_Maximum2DDiameterSlice": 8.400708268596315,
+        "original_shape_MeshVolume": 122.30873107910156,
+        "original_shape_MinorAxisLength": 5.572417443940806,
+        "original_shape_Sphericity": 0.7463495907309864,
+        "original_shape_SurfaceArea": 159.65412079246826,
+        "original_shape_SurfaceVolumeRatio": 1.3053370710649763,
+        "original_shape_VoxelVolume": 140.19012451171875,
+        "original_firstorder_Energy": 1076463.0,
+        "original_firstorder_Entropy": 3.6577646316268204,
+        "original_firstorder_Kurtosis": 4.665398349757986,
+        "original_firstorder_Maximum": 70.0,
+        "original_firstorder_MeanAbsoluteDeviation": 99.76759683465221,
+        "original_firstorder_Mean": -71.04081632653062,
+        "original_firstorder_Median": -22.0,
+        "original_firstorder_Minimum": -468.0,
+        "original_firstorder_Range": 538.0,
+        "original_firstorder_RootMeanSquared": 148.21819271958898,
+        "original_firstorder_Skewness": -1.5071545580190577,
+        "original_firstorder_TotalEnergy": 3079785.3469848633,
+        "original_firstorder_Uniformity": 0.10204081632653061,
+        "original_firstorder_Variance": 16921.835068721364,
+        "MaximumDiameter": 9.209489522531909,
+        "SurfaceVolume": 1.3053370710649763
+    },
+    "Nodule_6": {
+        "diagnostics_Versions_PyRadiomics": "v3.0.1",
+        "diagnostics_Versions_Numpy": "1.26.4",
+        "diagnostics_Versions_SimpleITK": "2.3.1",
+        "diagnostics_Versions_PyWavelet": "1.6.0",
+        "diagnostics_Versions_Python": "3.9.7",
+        "diagnostics_Configuration_Settings": {
+            "minimumROIDimensions": 2,
+            "minimumROISize": null,
+            "normalize": false,
+            "normalizeScale": 1,
+            "removeOutliers": null,
+            "resampledPixelSpacing": null,
+            "interpolator": "sitkBSpline",
+            "preCrop": false,
+            "padDistance": 5,
+            "distances": [
+                1
+            ],
+            "force2D": false,
+            "force2Ddimension": 0,
+            "resegmentRange": null,
+            "label": 1,
+            "additionalInfo": true,
+            "binWidth": 25
+        },
+        "diagnostics_Configuration_EnabledImageTypes": {
+            "Original": {}
+        },
+        "diagnostics_Image-original_Hash": "977b6f444dde58bdca021824c7beb5fc5fff5c4c",
+        "diagnostics_Image-original_Dimensionality": "3D",
+        "diagnostics_Image-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Image-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Image-original_Mean": -799.695073308824,
+        "diagnostics_Image-original_Minimum": -1000.0,
+        "diagnostics_Image-original_Maximum": 3071.0,
+        "diagnostics_Mask-original_Hash": "822f3eb01966cdb59f6e2e5a8661cabd8c9d5ac2",
+        "diagnostics_Mask-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Mask-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Mask-original_BoundingBox": [
+            259,
+            358,
+            56,
+            3,
+            4,
+            1
+        ],
+        "diagnostics_Mask-original_VoxelNum": 8,
+        "diagnostics_Mask-original_VolumeNum": 1,
+        "diagnostics_Mask-original_CenterOfMassIndex": [
+            260.0,
+            359.5,
+            56.0
+        ],
+        "diagnostics_Mask-original_CenterOfMass": [
+            4.39453125,
+            -309.5625,
+            -498.5
+        ],
+        "original_shape_Elongation": 0.8164965809277259,
+        "original_shape_Flatness": 0.0,
+        "original_shape_LeastAxisLength": 0.0,
+        "original_shape_MajorAxisLength": 3.3829117335329633,
+        "original_shape_Maximum2DDiameterColumn": 3.579762180037244,
+        "original_shape_Maximum2DDiameterRow": 4.1932170045987665,
+        "original_shape_Maximum2DDiameterSlice": 3.90625,
+        "original_shape_MeshVolume": 16.21246337890625,
+        "original_shape_MinorAxisLength": 2.762135864009951,
+        "original_shape_Sphericity": 0.8838387233364016,
+        "original_shape_SurfaceArea": 35.049118894579905,
+        "original_shape_SurfaceVolumeRatio": 2.161862640823707,
+        "original_shape_VoxelVolume": 22.88818359375,
+        "original_firstorder_Energy": 32889851.0,
+        "original_firstorder_Entropy": 2.9999999999999973,
+        "original_firstorder_Kurtosis": 2.5205171602588714,
+        "original_firstorder_Maximum": 2613.0,
+        "original_firstorder_MeanAbsoluteDeviation": 531.71875,
+        "original_firstorder_Mean": 1913.625,
+        "original_firstorder_Median": 2018.0,
+        "original_firstorder_Minimum": 569.0,
+        "original_firstorder_Range": 2044.0,
+        "original_firstorder_RootMeanSquared": 2027.6171667748329,
+        "original_firstorder_Skewness": -0.8317244638762019,
+        "original_firstorder_TotalEnergy": 94098618.50738525,
+        "original_firstorder_Uniformity": 0.125,
+        "original_firstorder_Variance": 449270.734375,
+        "MaximumDiameter": 4.1932170045987665,
+        "SurfaceVolume": 2.161862640823707
+    },
+    "Nodule_1": {
+        "diagnostics_Versions_PyRadiomics": "v3.0.1",
+        "diagnostics_Versions_Numpy": "1.26.4",
+        "diagnostics_Versions_SimpleITK": "2.3.1",
+        "diagnostics_Versions_PyWavelet": "1.6.0",
+        "diagnostics_Versions_Python": "3.9.7",
+        "diagnostics_Configuration_Settings": {
+            "minimumROIDimensions": 2,
+            "minimumROISize": null,
+            "normalize": false,
+            "normalizeScale": 1,
+            "removeOutliers": null,
+            "resampledPixelSpacing": null,
+            "interpolator": "sitkBSpline",
+            "preCrop": false,
+            "padDistance": 5,
+            "distances": [
+                1
+            ],
+            "force2D": false,
+            "force2Ddimension": 0,
+            "resegmentRange": null,
+            "label": 1,
+            "additionalInfo": true,
+            "binWidth": 25
+        },
+        "diagnostics_Configuration_EnabledImageTypes": {
+            "Original": {}
+        },
+        "diagnostics_Image-original_Hash": "977b6f444dde58bdca021824c7beb5fc5fff5c4c",
+        "diagnostics_Image-original_Dimensionality": "3D",
+        "diagnostics_Image-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Image-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Image-original_Mean": -799.695073308824,
+        "diagnostics_Image-original_Minimum": -1000.0,
+        "diagnostics_Image-original_Maximum": 3071.0,
+        "diagnostics_Mask-original_Hash": "0a543b8bdfe5bd7d211ed9150a19ead32ed4f4cb",
+        "diagnostics_Mask-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Mask-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Mask-original_BoundingBox": [
+            332,
+            182,
+            66,
+            14,
+            23,
+            7
+        ],
+        "diagnostics_Mask-original_VoxelNum": 678,
+        "diagnostics_Mask-original_VolumeNum": 1,
+        "diagnostics_Mask-original_CenterOfMassIndex": [
+            339.82300884955754,
+            192.99852507374632,
+            68.45132743362832
+        ],
+        "diagnostics_Mask-original_CenterOfMass": [
+            82.34668832964604,
+            -146.9634033923304,
+            -461.146017699115
+        ],
+        "original_shape_Elongation": 0.5665764370062928,
+        "original_shape_Flatness": 0.4554872738460448,
+        "original_shape_LeastAxisLength": 11.000880425919872,
+        "original_shape_MajorAxisLength": 24.1518941528939,
+        "original_shape_Maximum2DDiameterColumn": 21.802116305318275,
+        "original_shape_Maximum2DDiameterRow": 25.851043078039545,
+        "original_shape_Maximum2DDiameterSlice": 20.8765218031562,
+        "original_shape_MeshVolume": 1886.3677978515625,
+        "original_shape_MinorAxisLength": 13.683894136099742,
+        "original_shape_Sphericity": 0.5728676700748135,
+        "original_shape_SurfaceArea": 1288.7857546555924,
+        "original_shape_SurfaceVolumeRatio": 0.6832102181363713,
+        "original_shape_VoxelVolume": 1939.7735595703125,
+        "original_firstorder_Energy": 101898219.0,
+        "original_firstorder_Entropy": 5.094490155969999,
+        "original_firstorder_Kurtosis": 3.1069994561794045,
+        "original_firstorder_Maximum": 132.0,
+        "original_firstorder_MeanAbsoluteDeviation": 195.08493225781186,
+        "original_firstorder_Mean": -302.67699115044246,
+        "original_firstorder_Median": -309.0,
+        "original_firstorder_Minimum": -1000.0,
+        "original_firstorder_Range": 1132.0,
+        "original_firstorder_RootMeanSquared": 387.6755839707727,
+        "original_firstorder_Skewness": -0.49340331572048024,
+        "original_firstorder_TotalEnergy": 291533143.04351807,
+        "original_firstorder_Uniformity": 0.03290521314642232,
+        "original_firstorder_Variance": 58678.99743519462,
+        "MaximumDiameter": 25.851043078039545,
+        "SurfaceVolume": 0.6832102181363713
+    },
+    "Nodule_5": {
+        "diagnostics_Versions_PyRadiomics": "v3.0.1",
+        "diagnostics_Versions_Numpy": "1.26.4",
+        "diagnostics_Versions_SimpleITK": "2.3.1",
+        "diagnostics_Versions_PyWavelet": "1.6.0",
+        "diagnostics_Versions_Python": "3.9.7",
+        "diagnostics_Configuration_Settings": {
+            "minimumROIDimensions": 2,
+            "minimumROISize": null,
+            "normalize": false,
+            "normalizeScale": 1,
+            "removeOutliers": null,
+            "resampledPixelSpacing": null,
+            "interpolator": "sitkBSpline",
+            "preCrop": false,
+            "padDistance": 5,
+            "distances": [
+                1
+            ],
+            "force2D": false,
+            "force2Ddimension": 0,
+            "resegmentRange": null,
+            "label": 1,
+            "additionalInfo": true,
+            "binWidth": 25
+        },
+        "diagnostics_Configuration_EnabledImageTypes": {
+            "Original": {}
+        },
+        "diagnostics_Image-original_Hash": "977b6f444dde58bdca021824c7beb5fc5fff5c4c",
+        "diagnostics_Image-original_Dimensionality": "3D",
+        "diagnostics_Image-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Image-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Image-original_Mean": -799.695073308824,
+        "diagnostics_Image-original_Minimum": -1000.0,
+        "diagnostics_Image-original_Maximum": 3071.0,
+        "diagnostics_Mask-original_Hash": "98cb6ad9071919c1ad7114aa87706bbd66c7cf06",
+        "diagnostics_Mask-original_Spacing": [
+            0.9765625,
+            0.9765625,
+            3.0
+        ],
+        "diagnostics_Mask-original_Size": [
+            512,
+            512,
+            158
+        ],
+        "diagnostics_Mask-original_BoundingBox": [
+            316,
+            174,
+            68,
+            5,
+            5,
+            2
+        ],
+        "diagnostics_Mask-original_VoxelNum": 26,
+        "diagnostics_Mask-original_VolumeNum": 1,
+        "diagnostics_Mask-original_CenterOfMassIndex": [
+            318.15384615384613,
+            176.34615384615384,
+            68.26923076923077
+        ],
+        "diagnostics_Mask-original_CenterOfMass": [
+            61.18539663461536,
+            -130.7013221153846,
+            -461.6923076923077
+        ],
+        "original_shape_Elongation": 0.8388302277498197,
+        "original_shape_Flatness": 0.7779747455173505,
+        "original_shape_LeastAxisLength": 4.179461237436379,
+        "original_shape_MajorAxisLength": 5.372232532634529,
+        "original_shape_Maximum2DDiameterColumn": 6.677055402470183,
+        "original_shape_Maximum2DDiameterRow": 6.677055402470183,
+        "original_shape_Maximum2DDiameterSlice": 5.258950006967289,
+        "original_shape_MeshVolume": 62.465667724609375,
+        "original_shape_MinorAxisLength": 4.5063910388748125,
+        "original_shape_Sphericity": 0.8413084578118637,
+        "original_shape_SurfaceArea": 90.49469639185946,
+        "original_shape_SurfaceVolumeRatio": 1.4487109429586325,
+        "original_shape_VoxelVolume": 74.3865966796875,
+        "original_firstorder_Energy": 8593804.0,
+        "original_firstorder_Entropy": 3.1227647178082476,
+        "original_firstorder_Kurtosis": 1.7096634982342358,
+        "original_firstorder_Maximum": -395.0,
+        "original_firstorder_MeanAbsoluteDeviation": 86.41420118343196,
+        "original_firstorder_Mean": -566.3846153846154,
+        "original_firstorder_Median": -545.5,
+        "original_firstorder_Minimum": -707.0,
+        "original_firstorder_Range": 312.0,
+        "original_firstorder_RootMeanSquared": 574.918188159779,
+        "original_firstorder_Skewness": 0.05755339824595382,
+        "original_firstorder_TotalEnergy": 24587070.46508789,
+        "original_firstorder_Uniformity": 0.13017751479289943,
+        "original_firstorder_Variance": 9739.39053254438,
+        "MaximumDiameter": 6.677055402470183,
+        "SurfaceVolume": 1.4487109429586325
+    }
+}
