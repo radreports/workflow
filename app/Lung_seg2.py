@@ -12,6 +12,16 @@ classes = {
     2: "Lung Nodules-1",
     3: "Lung Nodules-2",
     4: "Lung Nodules-3",
+    5: "Lung Nodules-4",
+    6: "Lung Nodules-5",
+    7: "Lung Nodules-6",
+    8: "Lung Nodules-7",
+    9: "Lung Nodules-8",
+    10: "Lung Nodules-9",
+    11: "Lung Nodules-10",
+    12: "Lung Nodules-11",
+    13: "Lung Nodules-12",
+    14: "Lung Nodules-13",
 }
 
 # Set the log level
@@ -21,7 +31,7 @@ logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger("NIfTI to SEG")
 
 # Get color palette
-colormap = tableau.get_map("TrafficLight_9")
+colormap = tableau.get_map("BlueRed_6")
 
 # Default CSV delimiter
 CSV_DELIMITER = ","

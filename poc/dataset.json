@@ -1,0 +1,35 @@
+{
+    "name": "Segmentation of X",
+    "description": "Segmentation",
+    "reference": "Jakob",
+    "licence": "-",
+    "release": "0.0",
+    "channel_names": {
+        "0": "CT"
+    },
+    "labels": {
+        "background": 0,
+        "eye_left": 1,
+        "eye_right": 2,
+        "eye_lens_left": 3,
+        "eye_lens_right": 4,
+        "optic_nerve_left": 5,
+        "optic_nerve_right": 6,
+        "parotid_gland_left": 7,
+        "parotid_gland_right": 8,
+        "submandibular_gland_right": 9,
+        "submandibular_gland_left": 10,
+        "nasopharynx": 11,
+        "oropharynx": 12,
+        "hypopharynx": 13,
+        "nasal_cavity_right": 14,
+        "nasal_cavity_left": 15,
+        "auditory_canal_right": 16,
+        "auditory_canal_left": 17,
+        "soft_palate": 18,
+        "hard_palate": 19
+    },
+    "numTraining": 492,
+    "file_ending": ".nii.gz",
+    "overwrite_image_reader_writer": "NibabelIOWithReorient"
+}

@@ -1,0 +1,29 @@
+{
+    "name": "Segmentation of X",
+    "description": "Segmentation",
+    "reference": "Jakob",
+    "licence": "-",
+    "release": "0.0",
+    "channel_names": {
+        "0": "CT"
+    },
+    labels = {
+        "background": 0,
+        "larynx_air": 1,
+        "thyroid_cartilage": 2,
+        "hyoid": 3,
+        "cricoid_cartilage": 4,
+        "zygomatic_arch_right": 5,
+        "zygomatic_arch_left": 6,
+        "styloid_process_right": 7,
+        "styloid_process_left": 8,
+        "internal_carotid_artery_right": 9,
+        "internal_carotid_artery_left": 10,
+        "internal_jugular_vein_right": 11,
+        "internal_jugular_vein_left": 12
+    }
+    ,
+    "numTraining": 492,
+    "file_ending": ".nii.gz",
+    "overwrite_image_reader_writer": "NibabelIOWithReorient"
+}

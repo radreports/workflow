@@ -7,19 +7,14 @@ import pydicom_seg
 from pathlib import Path
 from palettable.tableau import tableau
 
-
-
+# Classes definition
 classes = {
-   
-        
-       1: "SAH",
-       2: "IVHem",
-       3: "Ventricle",
-       4:  "ICH",
-        5: "Aneurysm",
-        6:"subdural",
-   
-    
+    1: "SAH",
+    2: "IVHem",
+    3: "Ventricle",
+    4: "ICH",
+    5: "Aneurysm",
+    6: "subdural",
 }
 
 # Set the log level
@@ -29,7 +24,7 @@ logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger("NIfTI to SEG")
 
 # Get color palette
-colormap = tableau.get_map("TrafficLight_9")
+colormap = tableau.get_map("BlueRed_6")
 
 # Default CSV delimiter
 CSV_DELIMITER = ","
@@ -42,6 +37,7 @@ def get_nifti_labels(sitk_image):
     labels = np.trim_zeros(np.unique(image_data))
     for label in labels:
         logger.debug(f"found label n°{int(label)} in image")
+        print(f"found label n°{int(label)} in image")
 
     return labels
 
@@ -102,19 +98,31 @@ def get_segment(label, description, color):
 
 def match_orientation(sitk_img_ref, sitk_img_sec, verbose=True):
     orientation_filter = SimpleITK.DICOMOrientImageFilter()
-    orientation_ref = orientation_filter.GetOrientationFromDirectionCosines(sitk_img_ref.GetDirection())
-    orientation_sec = orientation_filter.GetOrientationFromDirectionCosines(sitk_img_sec.GetDirection())
+    direction_ref = sitk_img_ref.GetDirection()
+    direction_sec = sitk_img_sec.GetDirection()
+
+    # Adjust the reference direction cosines if they have a length of 16 (4x4 matrix)
+    if len(direction_ref) == 16:
+        direction_ref = direction_ref[:9]
+
+    print(f"Direction cosines of reference image: {direction_ref}")
+    print(f"Direction cosines of second image: {direction_sec}")
+
+    if len(direction_ref) != 9 or len(direction_sec) != 9:
+        raise ValueError("The direction cosines must be of length 9 (3x3 matrix).")
+
+    orientation_ref = orientation_filter.GetOrientationFromDirectionCosines(direction_ref)
+    orientation_sec = orientation_filter.GetOrientationFromDirectionCosines(direction_sec)
+
     if verbose:
         print(f"Reference image has orientation '{orientation_ref}'")
         print(f"Second image has orientation    '{orientation_sec}'")
+
     if orientation_ref != orientation_sec:
         if verbose:
             print(f"Converting orientation of second image: '{orientation_sec}' --> '{orientation_ref}'")
         orientation_filter.SetDesiredCoordinateOrientation(orientation_ref)
         img_sec_reoriented = orientation_filter.Execute(sitk_img_sec)
-        orientation_sec_reoriented = orientation_filter.GetOrientationFromDirectionCosines(
-            img_sec_reoriented.GetDirection()
-        )
         return img_sec_reoriented
     else:
         return sitk_img_sec
@@ -150,6 +158,7 @@ def get_dicom_paths_from_dir(dicom_dir):
     paths = [str(f) for f in files if f.is_file()]
 
     return paths
+
 def nifti_to_seg(
     sitk_image,
     dicom_input,
@@ -174,7 +183,12 @@ def nifti_to_seg(
         segmentation = cast_to_unsigned(segmentation)
 
     dicom_series_paths = get_dicom_paths_from_dir(dicom_input)
-    source_images = [pydicom.dcmread(img, stop_before_pixels=True) for img in dicom_series_paths]
+    source_images = []
+    for img in dicom_series_paths:
+        ds = pydicom.dcmread(img, stop_before_pixels=True)
+        # Check for the presence of 'ImagePositionPatient' attribute
+        if hasattr(ds, 'ImagePositionPatient'):
+            source_images.append(ds)
 
     metadata = generate_metadata(roi_dict, series_description)
     template = pydicom_seg.template.from_dcmqi_metainfo(metadata)
@@ -229,13 +243,31 @@ def cast_to_unsigned(segmentation):
 
 
 def is_fractional(sitk_image):
-    return sitk_image.GetPixelID() in [SimpleITK.sitkFloat32, SimpleITK.sitkFloat64]
+    pixel_id = sitk_image.GetPixelID()
+    pixel_type = SimpleITK.GetPixelIDValueAsString(pixel_id)
+    print(f"Pixel type: {pixel_type}")
+    return pixel_id in [SimpleITK.sitkFloat32, SimpleITK.sitkFloat64]
+
+
+def normalize_image(sitk_image):
+    np_image = SimpleITK.GetArrayFromImage(sitk_image)
+    min_val = np.min(np_image)
+    max_val = np.max(np_image)
+    if min_val < 0 or max_val > 1:
+        np_image = (np_image - min_val) / (max_val - min_val)
+        sitk_image = SimpleITK.GetImageFromArray(np_image)
+        sitk_image.CopyInformation(sitk_image)  # Preserve original metadata
+    return sitk_image
 
 
 def process(dicom_input_dir, nifti_mask_file, output_dir, label_dict):
     sitk_image = SimpleITK.ReadImage(nifti_mask_file)
 
     fractional = is_fractional(sitk_image)
+    print(f"Fractional image: {fractional}")
+
+    if fractional:
+        sitk_image = normalize_image(sitk_image)
 
     if not fractional:
         labels = get_nifti_labels(sitk_image)

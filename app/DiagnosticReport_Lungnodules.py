@@ -61,13 +61,14 @@ def extract_features(image_path, mask_path, label_id):
     features = {name: value for name, value in result.items() if name.split('_')[-1] in feature_units_and_descriptions}
     return features
 
-def create_observation(name, value, patient_id, imaging_study_id):
+def create_observation(name, value, patient_id, imaging_study_id, label_description):
     feature_info = feature_units_and_descriptions.get(name.split('_')[-1], {'unit': None, 'description': 'No description provided'})
     observation = Observation(
         status='final',  # Assuming all observations are considered 'final' when created
         code=CodeableConcept(coding=[Coding(system='http://example.org/fake-metrics', code=name, display=feature_info['description'])]),
         subject=Reference(reference=f'/{patient_id}'),
-        valueQuantity=Quantity(value=value, unit=feature_info['unit'])
+        valueQuantity=Quantity(value=value, unit=feature_info['unit']),
+        note=[{"text": f"{label_description} - {feature_info['description']}"}]  # Include label description
     )
     return observation
 
@@ -154,14 +155,22 @@ def process(FHIR_SERVER_URL, patient_id, imaging_study_id, image_path, mask_path
     unique_labels = unique_labels[unique_labels != 0]  # Remove background label
 
     observations = []
+    nodule_count = 0
+
     for label in unique_labels:
+        if label == 1:
+            label_description = "Liver"
+        else:
+            nodule_count += 1
+            label_description = f"Liver_Lesion{nodule_count}"
+
         binary_mask = convert_to_binary_mask(mask, label)
         binary_mask_array = sitk.GetArrayFromImage(binary_mask)
         if np.sum(binary_mask_array) <= 1:
             continue  # Ignore nodules with only 1 pixel
 
         features = extract_features(image_path, mask_path, label)
-        observations.extend([create_observation(name, value, patient_id, imaging_study_id) for name, value in features.items()])
+        observations.extend([create_observation(name, value, patient_id, imaging_study_id, label_description) for name, value in features.items()])
 
     headers = {'Content-Type': 'application/fhir+json'}
     observation_ids = [post_fhir_resource(obs, FHIR_SERVER_URL, headers) for obs in observations]
