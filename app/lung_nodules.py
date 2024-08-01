@@ -20,6 +20,10 @@ def process_lung_nodules(input_path, output_path):
     """Process lung nodules without checking if they are within lung volumes."""
     data, affine = load_nifti(input_path)
 
+    # Ensure data has at least two dimensions
+    if data.ndim < 2:
+        raise ValueError(f"Input data has too few dimensions (number of dimensions {data.ndim}, minimum required 2)")
+
     # Assuming lung masks have value 1 and lung nodules have value 2
     lung_mask = (data == 1)
     nodule_mask = (data == 2)
@@ -35,8 +39,16 @@ def process_lung_nodules(input_path, output_path):
 
     for i in range(1, num_features + 1):
         nodule_component = (labeled_nodules == i)
+
+        # Calculate dimensions of the nodule
+        nodule_dimensions = np.sum(nodule_component, axis=(0, 1, 2))
+
+        # Ignore nodules with dimensions less than 2
+        if nodule_dimensions < 2:
+            continue
+
         nodule_count += 1
-        classes[2 + nodule_count - 1] = f"Lung Nodule{nodule_count}"
+        classes[2 + nodule_count - 1] = f"Lung Nodule {nodule_count}"
         final_nodule_mask[nodule_component] = 2 + nodule_count - 1
 
     # Create the final mask with lung volumes and nodules
@@ -68,4 +80,3 @@ def load_json_with_int_keys(file_path):
 
     with open(file_path, 'r') as json_file:
         return json.load(json_file, object_hook=convert_keys_to_int)
-

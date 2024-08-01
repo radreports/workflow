@@ -537,14 +537,14 @@ def process(data):
         bodypartExamined = "Lung Nodules"
         # lung.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
 
-        lung_nodules.process_lung_nodules(niftiout +"/prediction.nii.gz",niftiout)
-        data = lung_nodules.load_json_with_int_keys(workingDir + "/nodules.json")
-        json_file_path = workingDir + "/nodules.json"
-        classes = data["classes"]
-        print(classes)
+        # lung_nodules.process_lung_nodules(niftiout +"/prediction.nii.gz",niftiout)
+        # data = lung_nodules.load_json_with_int_keys(workingDir + "/nodules.json")
+        # json_file_path = workingDir + "/nodules.json"
+        # classes = data["classes"]
+        # print(classes)
 
-        lung_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",classes)
-        # lung_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",lung_seg.classes)
+        # lung_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",classes)
+        lung_seg.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout+ "/rt-struct.dcm",lung_seg.classes)
         inference_findings ="Positive: Lung Nodules"
         # abdoman.process(dicomIN,niftiout +"/prediction.nii.gz",rtstructureout)
 
@@ -627,7 +627,7 @@ def process(data):
     if bodyPart.lower() == "lung".lower() and "positive" in inference_findings.lower():
         print("Going to generate diagnostic Report for Lung nodules")
         # reportGenerator.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",1,inference_findings)
-        diagnosticReport.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",inference_findings)
+        diagnosticReport.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",inference_findings,"CT","Lungs")
         
         if os.path.isfile(rtstructureout + '/rt-struct.dcm'):
             fileobj = open(rtstructureout + '/rt-struct.dcm', 'rb')
@@ -639,7 +639,7 @@ def process(data):
         print("Going to generate diagnostic Report for Liver Tumor")
         ## process_liver.main(dicomIN,niftiIN + "/infile_0000.nii.gz", niftiout +"/prediction.nii.gz", rtstructureout , OrthancURL, ehr_url,study_id,patient_id)
         ## reportGenerator.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",2,inference_findings)
-        diagnosticReport.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",inference_findings)
+        diagnosticReport.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",inference_findings,"CT","Liver")
         if os.path.isfile(rtstructureout + '/rt-struct.dcm'):
             fileobj = open(rtstructureout + '/rt-struct.dcm', 'rb')
             headers = {"Content-Type":"application/binary",}
@@ -650,6 +650,15 @@ def process(data):
                 headers = {"Content-Type":"application/binary",}
                 getdata = requests.post(OrthancURL+"/instances", data=fileobj,headers=headers )
                 print(getdata.text)
+
+    elif bodyPart.lower() == "breast_mri".lower():
+        print("Going to generate diagnostic Report for Breast MRI")
+        diagnosticReport.process(ehr_url,patient_id,study_id,niftiIN + "/infile_0000.nii.gz",niftiout +"/prediction.nii.gz",inference_findings,"MRI","Breast")
+        if os.path.isfile(rtstructureout + '/rt-struct.dcm'):
+            fileobj = open(rtstructureout + '/rt-struct.dcm', 'rb')
+            headers = {"Content-Type":"application/binary",}
+            getdata = requests.post(OrthancURL+"/instances", data=fileobj,headers=headers )
+            print(getdata.text)
 
     elif(bodyPart.lower() == "Head_Neck_OAR".lower() ):
         print("Going to generate OAR for Head and Neck")

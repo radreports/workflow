@@ -10,7 +10,8 @@ from fhir.resources.coding import Coding
 from fhir.resources.diagnosticreport import DiagnosticReport
 from fhir.resources.binary import Binary
 from fhir.resources.quantity import Quantity
-
+from fhir.resources.annotation import Annotation
+# from fhirclient.models.annotation import Annotation
 import numpy as np
 from decimal import Decimal
 import base64
@@ -64,7 +65,7 @@ def extract_features(image_path, mask_path, label_id):
 def create_observation(name, value, patient_id, imaging_study_id, label_description):
     feature_info = feature_units_and_descriptions.get(name.split('_')[-1], {'unit': None, 'description': 'No description provided'})
     observation = Observation(
-        status='final',  # Assuming all observations are considered 'final' when created
+        status='preliminary',  # Assuming all observations are considered 'final' when created
         code=CodeableConcept(coding=[Coding(system='http://example.org/fake-metrics', code=name, display=feature_info['description'])]),
         subject=Reference(reference=f'/{patient_id}'),
         valueQuantity=Quantity(value=value, unit=feature_info['unit']),
@@ -146,7 +147,7 @@ def post_fhir_resource(resource, FHIR_SERVER_URL, headers):
         print("Response:", error.response.text)  # Log the error response
         raise
 
-def process(FHIR_SERVER_URL, patient_id, imaging_study_id, image_path, mask_path, inference_findings):
+def process(FHIR_SERVER_URL, patient_id, imaging_study_id, image_path, mask_path, inference_findings,modality,body_part):
     image_id = getImageID(FHIR_SERVER_URL, imaging_study_id)
     mask = load_nifti_as_sitk(mask_path)
     labels = sitk.GetArrayViewFromImage(mask)
@@ -159,10 +160,10 @@ def process(FHIR_SERVER_URL, patient_id, imaging_study_id, image_path, mask_path
 
     for label in unique_labels:
         if label == 1:
-            label_description = "Liver"
+            label_description = body_part
         else:
             nodule_count += 1
-            label_description = f"Liver_Lesion{nodule_count}"
+            label_description = f"{body_part}_Lesion{nodule_count}"
 
         binary_mask = convert_to_binary_mask(mask, label)
         binary_mask_array = sitk.GetArrayFromImage(binary_mask)
@@ -174,9 +175,10 @@ def process(FHIR_SERVER_URL, patient_id, imaging_study_id, image_path, mask_path
 
     headers = {'Content-Type': 'application/fhir+json'}
     observation_ids = [post_fhir_resource(obs, FHIR_SERVER_URL, headers) for obs in observations]
-
+    note1 = Annotation(text=f'Modality: {modality}')
+    note2 = Annotation(text=f'Body: {body_part}')
     diagnostic_report = DiagnosticReport(
-        status='final',
+        status='preliminary',
         code=CodeableConcept(
             coding=[Coding(
                 system='http://loinc.org',
@@ -185,12 +187,19 @@ def process(FHIR_SERVER_URL, patient_id, imaging_study_id, image_path, mask_path
             )]
         ),
         subject=Reference(reference=f'/{patient_id}'),
+        note=[{"text": f"{modality} : {body_part}"}],
         conclusion=inference_findings,
+        
+
         conclusionCode=[CodeableConcept(
             coding=[Coding(
                 system='http://snomed.info/sct',  # Example, use SNOMED CT if appropriate
                 code=image_id,  # Example, use a specific SNOMED CT code relevant to the findings
                 display=inference_findings
+            ),Coding(
+                system='http://snomed.info/sct',  # Example, use SNOMED CT if appropriate
+                code=modality,  # Example, use a specific SNOMED CT code relevant to the findings
+                display=body_part
             )]
         )],
         result=[Reference(reference=f'Observation/{obs_id}') for obs_id in observation_ids]
